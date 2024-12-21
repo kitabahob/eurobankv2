@@ -9,19 +9,39 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.1.0"
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.47.8",
+    "@types/i18next": "^13.0.0",
+    "axios": "^1.7.9",
+    "bybit-api": "^3.10.27",
+    "firebase": "^11.1.0",
+    "i18next": "^24.1.2",
+    "i18next-browser-languagedetector": "^8.0.2",
+    "i18next-http-backend": "^3.0.1",
+    "lucide-react": "^0.468.0",
+    "negotiator": "^1.0.0",
+    "next": "15.1.0",
+    "next-i18next": "^15.4.1",
+    "next-intl": "^3.26.2",
+    "node-fetch": "^3.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-firebase-hooks": "^5.1.1",
+    "react-i18next": "^15.2.0",
+    "uuid": "^11.0.3",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@types/negotiator": "^0.6.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
+    "@types/react-i18next": "^8.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.0",
-    "@eslint/eslintrc": "^3"
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }

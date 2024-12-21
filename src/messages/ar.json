@@ -1,0 +1,129 @@
+{
+  "landingPage": {
+    "nav": {
+      "features": "الميزات",
+      "pricing": "التسعير",
+      "apps": "التطبيقات",
+      "faqs": "الأسئلة الشائعة",
+      "signin": "تسجيل الدخول"
+    },
+    "hero": {
+      "title": {
+        "part1": "مرحبًا بك في يوروبنك،",
+        "highlight": "شريكك المالي الموثوق",
+        "part2": "للمستقبل."
+      },
+      "description": "إدارة أموالك واستثماراتك وأكثر في مكان واحد.",
+      "cta": "ابدأ الآن"
+    },
+    "features": {
+      "title": "ميزاتنا",
+      "security": {
+        "title": "أعلى مستوى من الأمان",
+        "description": "نقدم تشفيرًا متقدمًا لحماية معلوماتك المالية."
+      },
+      "investment": {
+        "title": "خيارات الاستثمار",
+        "description": "تنوع محفظتك مع مجموعة متنوعة من فرص الاستثمار."
+      },
+      "referral": {
+        "title": "برنامج الإحالة",
+        "description": "اكسب مكافآت عن طريق إحالة أصدقائك وعائلتك إلى يوروبنك."
+      }
+    },
+    "pricing": {
+      "title": "خطط التسعير",
+      "vip1": {
+        "feature1": "5% عائد شهري",
+        "feature2": "استثمار أدنى منخفض"
+      },
+      "vip5": {
+        "feature1": "10% عائد شهري",
+        "feature2": "دعم الأولوية"
+      },
+      "vip10": {
+        "feature1": "20% عائد شهري",
+        "feature2": "فرص استثمار حصرية"
+      },
+      "minInvestment": "الحد الأدنى للاستثمار: {amount}",
+      "monthlyReturn": "العائد الشهري: {percent}%",
+      "mostPopular": "الأكثر شعبية",
+      "selectPlan": "اختيار الخطة"
+    },
+    "app": {
+      "title": "تطبيقاتنا",
+      "iphone": "آيفون",
+      "android": "أندرويد",
+      "comingSoon": "قريبًا",
+      "description": {
+        "title": "إدارة أثناء التنقل",
+        "text": "تطبيقاتنا المحمولة تجعل من السهل إدارة أمورك المالية في أي وقت وأي مكان."
+      },
+      "notify": "أعلمني"
+    },
+    "footer": {
+      "copyright": "© 2024 يوروبنك. جميع الحقوق محفوظة."
+    }
+  },
+  "SignupPage":{
+    "title": "سجل في Eurobank",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أنشئ كلمة مرور قوية",
+    "referralIdLabel": "رمز الإحالة (اختياري)",
+    "referralIdPlaceholder": "أدخل رمز الإحالة",
+    "signupButton": "سجل",
+    "alreadyHaveAccount": "هل لديك حساب؟ تسجيل الدخول",
+    "forgotPassword": "هل نسيت كلمة المرور؟"
+  },
+  "auth":{
+    "loginTitle": "تسجيل الدخول",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "signupLink": "ليس لديك حساب؟ سجل الآن",
+    "forgotPasswordLink": "هل نسيت كلمة المرور؟",
+    "loginSuccess": "تم تسجيل الدخول بنجاح!"
+  },
+    
+  "title": "نسيت كلمة المرور",
+  "emailLabel": "البريد الإلكتروني",
+  "emailPlaceholder": "أدخل بريدك الإلكتروني",
+  "resetButton": "إرسال رابط إعادة التعيين",
+  "loading": "جارٍ الإرسال...",
+  "error": "حدث خطأ:",
+  "successMessage": "تم إرسال رابط إعادة تعيين كلمة المرور بنجاح! يرجى التحقق من بريدك الوارد.",
+  "backToLogin": "العودة إلى تسجيل الدخول",
+  "signupLink": "إنشاء حساب"
+  ,
+  
+    "EurobankDashboard": {
+      "title": "Eurobank",
+      "userPlaceholder": "المستخدم",
+      "fetchError": "فشل في جلب بيانات المستخدم.",
+      "loadError": "تعذر تحميل البيانات. يرجى المحاولة لاحقًا.",
+      "loadingUser": "جارٍ تحميل معلومات المستخدم...",
+      "loadingDashboard": "جارٍ تحميل لوحة التحكم...",
+      "deposit": "الإيداع",
+      "withdraw": "السحب",
+      "invite": "دعوة",
+      "rules": "القواعد",
+      "levels": "المستويات",
+      "anouncement": "الإعلان",
+      "dailyEarning": "الأرباح اليومية",
+      "referralProfit": "أرباح الإحالة",
+      "totalProfit": "إجمالي الأرباح",
+      "totalBalance": "إجمالي الرصيد",
+      "welcome": "مرحبًا، {name}",
+      "Deposit": "الإيداع",
+      "Withdraw": "السحب",
+      "InviteFriends": "دعوة الأصدقاء",
+      "ChatSupport": "الدعم الفني",
+      "Rules": "القواعد",
+      "Anouncement": "الإعلانات"
+    }
+    
+}

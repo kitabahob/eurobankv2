@@ -1,0 +1,130 @@
+{
+  "landingPage": {
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "apps": "Apps",
+      "faqs": "FAQs",
+      "signin": "Sign In"
+    },
+    "hero": {
+      "title": {
+        "part1": "Welcome to EuroBank,",
+        "highlight": "Your trusted financial partner",
+        "part2": "for the future."
+      },
+      "description": "Manage your money, investments, and more all in one place.",
+      "cta": "Get Started"
+    },
+    "features": {
+      "title": "Our Features",
+      "security": {
+        "title": "Top-notch Security",
+        "description": "We provide state-of-the-art encryption to secure your financial information."
+      },
+      "investment": {
+        "title": "Investment Options",
+        "description": "Diversify your portfolio with a variety of investment opportunities."
+      },
+      "referral": {
+        "title": "Referral Program",
+        "description": "Earn rewards by referring your friends and family to EuroBank."
+      }
+    },
+    "pricing": {
+      "title": "Pricing Plans",
+      "vip1": {
+        "feature1": "5% monthly return",
+        "feature2": "Low minimum investment"
+      },
+      "vip5": {
+        "feature1": "10% monthly return",
+        "feature2": "Priority support"
+      },
+      "vip10": {
+        "feature1": "20% monthly return",
+        "feature2": "Exclusive investment opportunities"
+      },
+      "minInvestment": "Minimum Investment: {amount}",
+      "monthlyReturn": "Monthly Return: {percent}%",
+      "mostPopular": "Most Popular",
+      "selectPlan": "Select Plan"
+    },
+    "app": {
+      "title": "Our Apps",
+      "iphone": "iPhone",
+      "android": "Android",
+      "comingSoon": "Coming Soon",
+      "description": {
+        "title": "Manage on the Go",
+        "text": "Our mobile apps make it easy to manage your finances anywhere, anytime."
+      },
+      "notify": "Notify Me"
+    },
+    "footer": {
+      "copyright": "© 2024 EuroBank. All rights reserved."
+    }
+  },
+  "SignupPage":{
+      "title": "Sign Up to Eurobank",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "referralIdLabel": "Referral ID (optional)",
+      "referralIdPlaceholder": "Enter referral ID",
+      "signupButton": "Sign Up",
+      "alreadyHaveAccount": "Already have an account? Sign In",
+      "forgotPassword": "Forgot Password?",
+      "loading":"loading...."   
+  },
+  "auth":{
+    "loginTitle": "Login",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "loginButton": "Login",
+    "signupLink": "Don't have an account? Sign Up",
+    "forgotPasswordLink": "Forgot Password?",
+    "loginSuccess": "Login successful!"
+  },
+  "ForgotPasswordPage":{
+    "title": "Forgot Password",
+  "emailLabel": "Email Address",
+  "emailPlaceholder": "Enter your email",
+  "resetButton": "Send Reset Link",
+  "loading": "Sending...",
+  "error": "An error occurred:",
+  "successMessage": "Password reset email sent successfully! Please check your inbox.",
+  "backToLogin": "Back to Login",
+  "signupLink": "Create an Account"
+  },
+    "EurobankDashboard": {
+      "title": "Eurobank",
+      "userPlaceholder": "User",
+      "fetchError": "Failed to fetch user data.",
+      "loadError": "Unable to load data. Please try again later.",
+      "loadingUser": "Loading user information...",
+      "loadingDashboard": "Loading dashboard...",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "invite": "Invite",
+      "rules": "Rules",
+      "levels": "Levels",
+      "anouncement": "Announcement",
+      "dailyEarning": "Daily Earnings",
+      "referralProfit": "Referral Profit",
+      "totalProfit": "Total Profit",
+      "totalBalance": "Total Balance",
+      "welcome": "Welcome, {name}",
+      "Deposit": "Deposit",
+      "Withdraw": "Withdraw",
+      "InviteFriends": "Invite Friends",
+      "ChatSupport": "Chat Support",
+      "Rules": "Rules",
+      "Anouncement": "Announcement"
+    }
+  
+  
+}
