@@ -1,13 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import BottomNav from '@/lib/components/BottomNav';
-import { useRouter } from '@/i18n/routing';
+import { useRouter,usePathname } from '@/i18n/routing';
+import Image from 'next/image';
 import { 
   Wallet, 
   ArrowDownToLine, 
   ArrowUpToLine, 
   Users, 
   BookOpen, 
+  Home,
+  Headphones,
+  User,
   Search,
   Bell,
   MessagesSquare
@@ -29,6 +32,7 @@ const EurobankDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const user = useCurrentUser();
   const router = useRouter();
+  const pathname= usePathname();
 
   // Fetch user data from API
   useEffect(() => {
@@ -41,7 +45,7 @@ const EurobankDashboard = () => {
         if (!response.ok) throw new Error(t('fetchError'));
 
         const data = await response.json();
-        var defaultbalance;
+        let defaultbalance;
         if (data.profit_balance==0){
           defaultbalance=data.total_profit
         }else{
@@ -67,7 +71,7 @@ const EurobankDashboard = () => {
   }, [user, t]);
 
   // Navigation functions
-  const navigateToWithdraw = () => router.push('/withdrawal');
+  const navigateToWithdraw = () => router.push('/withdrawalstatus');
   const navigateToInvite = () => router.push('/invite');
   const navigateToRules = () => router.push('/rules');
   const navigateToLevel = () => router.push('/levels');
@@ -81,7 +85,7 @@ const EurobankDashboard = () => {
           icon: ArrowDownToLine, 
           label: t('deposit'), 
           color: 'text-green-400', 
-          action: () => router.push('/deposit') 
+          action: () => router.push('/depositStatus') 
         },
         { 
           icon: ArrowUpToLine, 
@@ -148,6 +152,7 @@ const EurobankDashboard = () => {
         {/* Mobile Header */}
         <div className="bg-secondary p-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
+            <img src="/e.svg" alt="logo" width={50} />
             <span className="text-xl font-bold text-primary">{t('title')}</span>
           </div>
           <div onClick={navigateToAnouncement} className="flex items-center space-x-4">
@@ -209,8 +214,29 @@ const EurobankDashboard = () => {
               </div>
             ))}
           </div>
-          <BottomNav/>
-        </div>    
+
+        </div>  
+
+        {/* BottomNav   */}
+    <nav className="fixed bottom-0 left-0 right-0 bg-secondary flex justify-around items-center h-16 border-t border-blue-700/50 md:hidden">
+      {[
+    { label: 'Home', icon: Home, path: '/dashboard' },
+    { label: 'Deposit', icon: ArrowDownToLine, path: '/depositStatus' },
+    { label: 'Support', icon: Headphones, path: '/support' },
+    { label: 'Profile', icon: User, path: '/profile' },
+  ].map(({ label, icon: Icon, path }) => (
+        <div
+          key={label}
+          onClick={() => router.push(path)}
+          className={`flex bg-secondary flex-col items-center justify-center w-full h-full cursor-pointer ${
+            pathname === path ? 'text-primary' : 'text-muted-foreground'
+          }`}
+        >
+          <Icon className="w-6 h-6" />
+          <span className="text-xs">{label}</span>
+        </div>
+      ))}
+    </nav>
       </div>
 
       {/* Desktop View */}
@@ -288,7 +314,7 @@ const EurobankDashboard = () => {
                  {/* Action Cards */}
           <div className="grid grid-cols-3 gap-6">
             {[
-              { icon: ArrowDownToLine, label: t('Deposit'), color: 'text-green-400', action: () => router.push('/deposit') },
+              { icon: ArrowDownToLine, label: t('Deposit'), color: 'text-green-400', action: () => router.push('/depositStatus') },
               { icon: ArrowUpToLine, label: t('Withdraw'), color: 'text-red-400', action: navigateToWithdraw },
               { icon: Users, label: t('InviteFriends'), color: 'text-blue-400', action: navigateToInvite },
               { icon: MessagesSquare, label: t('ChatSupport'), color: 'text-white-400', action: () => router.push('/support') },

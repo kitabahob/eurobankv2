@@ -9,6 +9,7 @@ interface BybitWithdrawalResponse {
     };
     retExtInfo?: Record<string, unknown>;
     time: number;
+    recvWindow? : number;
   }
   
   /**
@@ -23,63 +24,79 @@ interface BybitWithdrawalResponse {
     walletAddress: string,
     amount: number,
     coin = 'USDT',
-    chain = 'ETH'
-  ): Promise<{ transactionHash: string }> {
-    // Validate wallet address (basic regex example)
-    const addressRegex = /^(0x)?[0-9a-fA-F]{40}$/;
-    if (!addressRegex.test(walletAddress)) {
-      throw new Error('Invalid wallet address');
-    }
-  
-    // Validate amount (example: minimum 0.1)
-    if (amount <= 0.1) {
-      throw new Error('Withdrawal amount must be greater than 0.1');
-    }
-  
+    chain = 'TRC20'
+): Promise<{ transactionHash: string }> {
+    // Log the input parameters
+    
+
     try {
-      // Convert amount to string for Bybit API
-      const amountStr = amount.toFixed(2); // Ensure 2 decimal places
-  
-      // Submit the withdrawal request using Bybit API
-      const response: BybitWithdrawalResponse = await bybitClient.submitWithdrawal({
-        coin,
-        chain,
-        address: walletAddress,
-        amount: amountStr,
-        forceChain: 0, // Set 0 or 1 based on your requirement
-        accountType: 'FUND',
-        timestamp: Date.now() // Use current timestamp
-      });
-  
-      // Check for successful API response
-      if (response.retCode !== 0) {
-        throw new Error(`API Error: ${response.retMsg}`);
-      }
-  
-      // Ensure result and id exist
-      if (!response.result || !response.result.id) {
-        throw new Error('No transaction ID found in API response');
-      }
-  
-      // Extract transaction hash from the API response
-      const transactionHash = response.result.id;
-  
-      return { transactionHash };
-    } catch (error) {
-      // More comprehensive error handling
-      if (error instanceof Error) {
-        console.error('Error processing withdrawal:', error.message);
+        // Validate TRC20 wallet address
+        const trc20AddressRegex = /^T[a-zA-Z0-9]{33}$/;
+        if (!trc20AddressRegex.test(walletAddress)) {
+            throw new Error('Invalid TRC20 wallet address');
+        }
+
+        if (amount <= 0.1) {
+            throw new Error('Withdrawal amount must be greater than 0.1');
+        }
+
+        const amountStr = amount.toString();
+
         
-        // Add more specific error handling based on error type
-        if (error.message.includes('insufficient balance')) {
-          throw new Error('Insufficient funds for withdrawal');
+        // Get the current timestamp in milliseconds
+        const timestamp = Date.now();
+
+        // Adjust the timestamp by adding 13 seconds (13000 milliseconds)
+        const adjustedTimestamp = timestamp + 1500; 
+        
+        // Make the API call
+        const response = await bybitClient.submitWithdrawal({
+            coin,
+            chain,
+            address: walletAddress,
+            amount: '10',
+            timestamp:adjustedTimestamp,
+            forceChain: 0,
+            accountType: 'FUND',
+            
+        });
+
+        console.log('Adjusted timestamp:'+ adjustedTimestamp)
+
+        // Log the API response
+        console.log('Bybit API response:', response);
+
+        if (response.retCode !== 0) {
+            console.error("Bybit API Error details:", response);
+            throw new Error(`Bybit API Error ${response.retCode}: ${response.retMsg}`);
         }
-        if (error.message.includes('invalid address')) {
-          throw new Error('Invalid withdrawal address');
+
+        return { 
+            transactionHash: response.result.id 
+        };
+
+    } catch (error) {
+        // Enhanced error logging
+        console.error('Withdrawal error details:', {
+            error: error instanceof Error ? {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            } : error,
+            params: {
+                walletAddress,
+                amount,
+                coin,
+                chain
+            }
+        });
+
+        // Check for specific Bybit API errors
+        if (error instanceof Error) {
+            throw error;
         }
-      }
-  
-      // Fallback error
-      throw new Error('Failed to process withdrawal');
+
+        // If we get here, something unexpected happened
+        throw new Error('Unexpected error during withdrawal process');
     }
-  }
+}

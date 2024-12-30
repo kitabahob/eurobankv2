@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from 'react';
 import { 
   MessageCircle, 
@@ -8,29 +8,31 @@ import {
   BookOpen,
   Headphones
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import BottomNav from '@/lib/components/BottomNav';
+import { useTranslations } from 'next-intl';
 
 const SupportPage = () => {
   const router = useRouter();
+  const t = useTranslations('support'); // Hook for translations
 
   // Support contact options
   const supportChannels = [
     { 
       icon: Send, 
-      label: 'Telegram Support', 
+      label: t('channels.telegram.label'), 
       color: 'text-blue-400',
-      action: () => window.open('https://t.me/eurobanks20', '_blank')
+      action: () => window.open(t('channels.telegram.link'), '_blank')
     },
     { 
       icon: MessageCircle, 
-      label: 'Live Chat', 
+      label: t('channels.liveChat.label'), 
       color: 'text-green-400',
       action: () => router.push('/comingsoon')
     },
     { 
       icon: HelpCircle, 
-      label: 'FAQ', 
+      label: t('channels.faq.label'), 
       color: 'text-yellow-400',
       action: () => router.push('/faq')
     }
@@ -40,14 +42,14 @@ const SupportPage = () => {
   const supportResources = [
     { 
       icon: BookOpen, 
-      label: 'User Guide', 
-      value: 'Comprehensive Help',
+      label: t('resources.userGuide.label'), 
+      value: t('resources.userGuide.value'),
       color: 'text-blue-400'
     },
     { 
       icon: Headphones, 
-      label: 'Support Hours', 
-      value: '24/7 Available',
+      label: t('resources.supportHours.label'), 
+      value: t('resources.supportHours.value'),
       color: 'text-green-400'
     }
   ];
@@ -64,7 +66,7 @@ const SupportPage = () => {
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl text-primary font-bold">Support</h1>
+            <h1 className="text-2xl text-primary font-bold">{t('title')}</h1>
           </div>
         </div>
 
@@ -73,10 +75,8 @@ const SupportPage = () => {
           <div className="w-24 h-24 bg-primary-600 rounded-full flex items-center justify-center mb-4">
             <Headphones className="w-12 h-12 text-primary-foreground" />
           </div>
-          <h2 className="text-2xl font-bold text-primary mb-2">Customer Support</h2>
-          <p className="text-muted-foreground text-center">
-            We're here to help you 24/7. Choose your preferred support channel.
-          </p>
+          <h2 className="text-2xl font-bold text-primary mb-2">{t('overview.title')}</h2>
+          <p className="text-muted-foreground text-center">{t('overview.description')}</p>
         </div>
 
         {/* Support Channels */}
@@ -97,7 +97,7 @@ const SupportPage = () => {
 
         {/* Support Resources */}
         <div className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 mb-8 border border-blue-700/50 space-y-4">
-          <h3 className="text-xl font-semibold text-primary mb-4">Support Resources</h3>
+          <h3 className="text-xl font-semibold text-primary mb-4">{t('resources.title')}</h3>
           {supportResources.map(({ icon: Icon, label, value, color }, index) => (
             <div 
               key={index} 
@@ -119,10 +119,10 @@ const SupportPage = () => {
         {/* Telegram Support Button */}
         <div 
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center space-x-3 cursor-pointer transition-all"
-          onClick={() => window.open('https://t.me/Yhttps://t.me/eurobanks20', '_blank')}
+          onClick={() => window.open(t('channels.telegram.link'), '_blank')}
         >
           <Send className="w-6 h-6" />
-          <span>Join Telegram Support</span>
+          <span>{t('channels.telegram.button')}</span>
         </div>
       </div>
       <BottomNav/>

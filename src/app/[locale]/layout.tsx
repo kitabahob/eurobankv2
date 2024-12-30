@@ -43,8 +43,9 @@ export default async function RootLayout(props: RootLayoutProps) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-      <body className={`
+      <body  className={`
         min-h-screen 
+        overflow-x-hidden
         bg-background 
         font-sans 
         antialiased 

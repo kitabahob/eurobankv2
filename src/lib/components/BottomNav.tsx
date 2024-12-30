@@ -12,13 +12,13 @@ const BottomNav: React.FC<BottomNavProps> = () => {
   // Define navigation tabs
   const tabs = [
     { label: 'Home', icon: Home, path: '/dashboard' },
-    { label: 'Deposit', icon: ArrowDownToLine, path: '/deposit' },
+    { label: 'Deposit', icon: ArrowDownToLine, path: '/depositStatus' },
     { label: 'Support', icon: Headphones, path: '/support' },
     { label: 'Profile', icon: User, path: '/profile' },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-secondary flex justify-around items-center h-16 border-t border-muted-foreground/10 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 bg-secondary flex justify-around items-center h-16 border-t border-blue-700/50 md:hidden">
       {tabs.map(({ label, icon: Icon, path }) => (
         <div
           key={label}

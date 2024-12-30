@@ -1,6 +1,8 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { logout } from '@/lib/auth/auth';
+import { useCurrentUser } from '@/lib/auth/useCurrentUser';
 import { 
   User, 
   Mail, 
@@ -10,19 +12,19 @@ import {
   Settings, 
   LogOut, 
   Copy,
-  RefreshCw,
   Star,
   Trophy,
   Layers
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import BottomNav from '@/lib/components/BottomNav';
 
 const ProfilePage = () => {
+  const t = useTranslations('ProfilePage'); // Translations for the page
   const [userData, setUserData] = useState({
     username: 'CryptoTrader123',
     email: 'cryptotrader123@eurobank.com',
-    phone: '+1 (555) 123-4567',
+    phone: 'N/A',
     memberSince: 'January 2023',
     referralCode: 'EURO2024XYZ',
     level: 3,
@@ -31,63 +33,85 @@ const ProfilePage = () => {
   });
 
   const router = useRouter();
+  const user = useCurrentUser();
 
-  // Profile action sections
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch(`/api/user/${user.supabaseId}`);
+        if (!response.ok) throw new Error(t('fetchError'));
+
+        const data = await response.json();
+        setUserData({
+          username: data.email.split('@')[0],
+          email: data.email,
+          phone: data.phone || 'N/A',
+          memberSince: data.memberSince || 'N/A',
+          referralCode: data.referral_id,
+          level: data.level || 0,
+          totalReferrals: data.total_referrals || 0,
+          accountStatus: data.account_status || 'Active'
+        });
+      } catch (err) {
+        console.error(t('fetchError'), err);
+      }
+    };
+
+    fetchUserData();
+  }, [user, t]);
+
   const profileActions = [
     { 
       icon: Shield, 
-      label: 'Security', 
+      label: t('security'), 
       color: 'text-blue-400',
       action: () => router.push('/security')
     },
     { 
       icon: Settings, 
-      label: 'Settings', 
+      label: t('settings'), 
       color: 'text-green-400',
       action: () => router.push('/settings')
     },
     { 
       icon: LogOut, 
-      label: 'Logout', 
+      label: t('logout'), 
       color: 'text-red-400',
       action: () => logout()
     }
   ];
 
-  // Achievements and stats
   const profileStats = [
     { 
       icon: Star, 
-      label: 'Level', 
+      label: t('level'), 
       value: userData.level,
       color: 'text-yellow-400'
     },
     { 
       icon: Trophy, 
-      label: 'Referrals', 
+      label: t('referrals'), 
       value: userData.totalReferrals,
       color: 'text-blue-400'
     },
     { 
       icon: Layers, 
-      label: 'Status', 
+      label: t('status'), 
       value: userData.accountStatus,
       color: 'text-green-400'
     }
   ];
 
-  // Copy to clipboard function
-  const copyToClipboard = (text:string) => {
+  const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
+      alert(t('copied'));
     });
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Mobile & Desktop View */}
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
           <div className="flex items-center space-x-4">
             <button 
@@ -108,40 +132,36 @@ const ProfilePage = () => {
                 <path d="m15 18-6-6 6-6"/>
               </svg>
             </button>
-            <h1 className="text-2xl text-primary font-bold">Profile</h1>
-          </div>
-          <div className="flex items-center space-x-2">
+            <h1 className="text-2xl text-primary font-bold">{t('profile')}</h1>
           </div>
         </div>
 
-        {/* Profile Overview */}
         <div className="bg-blue-900/50 backdrop-blur-md p-6 mb-8 rounded-2xl border border-blue-700/50 flex flex-col items-center">
           <div className="w-24 h-24 bg-primary-600 rounded-full flex items-center justify-center mb-4">
             <User className="w-12 h-12 text-primary-foreground" />
           </div>
           <h2 className="text-2xl font-bold text-primary mb-2">{userData.username}</h2>
-          <p className="text-muted-foreground">Member since {userData.memberSince}</p>
+          <p className="text-muted-foreground">{t('memberSince', { date: userData.memberSince })}</p>
         </div>
 
-        {/* Contact Information */}
         <div className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 mb-8 border border-blue-700/50 space-y-4">
-          <h3 className="text-xl font-semibold text-primary mb-4">Contact Information</h3>
+          <h3 className="text-xl font-semibold text-primary mb-4">{t('contactInformation')}</h3>
           {[
             { 
               icon: Mail, 
-              label: 'Email', 
+              label: t('email'), 
               value: userData.email,
               color: 'text-blue-400'
             },
             { 
               icon: Phone, 
-              label: 'Phone', 
+              label: t('phone'), 
               value: userData.phone,
               color: 'text-green-400'
             },
             { 
               icon: CreditCard, 
-              label: 'Referral Code', 
+              label: t('referralCode'), 
               value: userData.referralCode,
               color: 'text-yellow-400',
               copyable: true
@@ -170,7 +190,6 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        {/* Profile Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {profileStats.map(({ icon: Icon, label, value, color }, index) => (
             <div 
@@ -184,7 +203,6 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        {/* Profile Actions */}
         <div className="grid grid-cols-3 gap-4">
           {profileActions.map(({ icon: Icon, label, color, action }, index) => (
             <div 
@@ -200,8 +218,7 @@ const ProfilePage = () => {
           ))}
         </div>
       </div>
-      <BottomNav/>
-
+      <BottomNav />
     </div>
   );
 };

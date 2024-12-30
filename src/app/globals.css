@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
   --background: hsl(222.2, 84%, 4.9%); /* Dark background */
   --foreground: hsl(210, 40%, 98%);    /* Light text */
@@ -27,21 +26,12 @@
   --crypto-dark-gradient: linear-gradient(135deg, #0B2545, #013A63, #005B96);
 }
 
-
 @media (prefers-color-scheme: dark) {
-  
+  /* Dark mode styles (if needed) */
 }
 
 body {
-  color: var(--foreground);html {
-    direction: ltr;
-  }
-  
-  html[lang='ar'] {
-    direction: rtl;
-    text-align: right;
-  }
-  
+  color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -55,3 +45,37 @@ html[lang='ar'] {
   text-align: right;
 }
 
+/* Add your keyframes and animations here */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}

@@ -1,5 +1,4 @@
 import { createClient, RealtimeChannel } from '@supabase/supabase-js';
-import { RestClientV5 } from 'bybit-api';
 import axios from 'axios';
 
 interface Deposit {
@@ -7,49 +6,124 @@ interface Deposit {
   wallet_address: string;
   amount: number;
   status: string;
+  created_at: string;
 }
 
 interface SupabasePayload {
-  new: Deposit; 
+  new: Deposit;
 }
 
-// Bybit and Supabase client initialization
+// Supabase client initialization
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Bybit V5 API client
-const bybitClient = new RestClientV5({
-  testnet: process.env.BYBIT_TESTNET === 'true', // Optional: use environment variable to toggle
-  key: process.env.BYBIT_API_KEY!,
-  secret: process.env.BYBIT_API_SECRET!,
-});
-
 let blockchainListenerActive = false;
 
-async function startSupabaseListener() {
-  const channel: RealtimeChannel = supabase.channel('deposits-status-pending');
+const PERSONAL_WALLET_ADDRESS = 'TSrqBqNgsUVHkjBcZc2GEDHTCUdPszgoQt'; // Your wallet address
 
-  channel
-    .on('postgres_changes', { 
-      event: 'INSERT', 
-      schema: 'public', 
-      table: 'deposits', 
-      filter: 'status=eq.pending' 
-    }, (payload: SupabasePayload) => {
-      const deposit = payload.new;
+async function fetchTransactionsFromTronGrid(startTime: number, endTime: number) {
+  try {
+    const response = await axios.get(
+      `https://api.trongrid.io/v1/accounts/${PERSONAL_WALLET_ADDRESS}/transactions/trc20?only_confirmed=true&limit=100&min_timestamp=${startTime}&max_timestamp=${endTime}`
+    );
+    return response.data.data; // Return the transactions array
+  } catch (error) {
+    console.error('Error fetching transactions from TronGrid:', error);
+    return [];
+  }
+}
 
-      console.log('New pending deposit detected:', deposit);
-      if (!blockchainListenerActive) {
-        blockchainListenerActive = true;
-        startBlockchainListener();
+async function getStartFilterTime(): Promise<number | null> {
+  try {
+    // Query the database for the oldest pending deposit
+    const { data: oldestPending } = await supabase
+      .from('deposits')
+      .select('created_at')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+      .limit(1);
+
+    if (oldestPending && oldestPending.length > 0) {
+      const oldestCreatedAt = oldestPending[0].created_at;
+      // Convert to a Unix timestamp in milliseconds
+      return new Date(oldestCreatedAt).getTime();
+    }
+    return null; // No pending deposits found
+  } catch (error) {
+    console.error('Error fetching oldest pending deposit:', error);
+    return null;
+  }
+}
+
+async function listenToBlockchainTransactions() {
+  try {
+    // Get the current time in Unix timestamp (milliseconds)
+    const currentTime = Date.now();
+
+    // Get the start filter time
+    const startTime = await getStartFilterTime();
+
+    if (!startTime) {
+      console.log('No oldest pending deposit found. Skipping blockchain listener.');
+      return;
+    }
+
+    // Fetch USDT TRC20 transactions for the personal wallet address within the time range
+    const transactions = await fetchTransactionsFromTronGrid(startTime, currentTime);
+
+    if (transactions.length === 0) {
+      console.log('No transactions found for the given time range.');
+      return;
+    }
+
+    console.log('Transactions fetched from TronGrid:', transactions);
+
+    for (const tx of transactions) {
+      // Check if transaction matches USDT criteria
+      if (
+        tx.token_info.symbol === 'USDT' &&
+        tx.token_info.address === 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' &&
+        tx.to === PERSONAL_WALLET_ADDRESS
+      ) {
+        const transactionAmount = parseFloat(tx.value) / 1_000_000;
+
+        // Check for a matching pending deposit in the database
+        const { data: matchedDeposits, error } = await supabase
+          .from('deposits')
+          .select('*')
+          .eq('wallet_address', tx.to)
+          .eq('status', 'pending')
+          .eq('amount', transactionAmount);
+
+        if (error) {
+          console.error('Error querying deposits table:', error);
+          continue;
+        }
+
+        if (matchedDeposits && matchedDeposits.length > 0) {
+          const matchedDeposit = matchedDeposits[0];
+
+          // Update the matched deposit record in the database
+          const { error: updateError } = await supabase
+            .from('deposits')
+            .update({
+              status: 'completed',
+              transaction_hash: tx.transaction_id
+            })
+            .eq('id', matchedDeposit.id);
+
+          if (updateError) {
+            console.error('Error updating deposit status:', updateError);
+          } else {
+            console.log('Deposit updated successfully:', matchedDeposit);
+          }
+        }
       }
-    })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('Supabase listener for pending deposits is active.');
-      }
-    });
+    }
+  } catch (error) {
+    console.error('Error in blockchain transaction listener:', error);
+  }
 }
 
 async function startBlockchainListener() {
@@ -68,94 +142,33 @@ async function startBlockchainListener() {
       return;
     }
 
-    for (const deposit of pendingDeposits) {
-      await listenToBlockchainTransaction(deposit as Deposit);
-    }
+    await listenToBlockchainTransactions();
   }, 5000);
 }
 
-async function getTransactionDetailsFromTronscan(transactionHash: string) {
-  try {
-    const response = await axios.get(`https://api.tronscan.org/api/transaction/${transactionHash}`);
-    
-    // Validate transaction details
-    const transactionData = response.data;
-    
-    // Check if it's a USDT TRC20 transaction
-    if (
-      transactionData.contract_type !== 'trc20' || 
-      !transactionData.trc20TransferInfo ||
-      transactionData.trc20TransferInfo[0]?.contract_address !== 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
-    ) {
-      return null;
-    }
+async function startSupabaseListener() {
+  const channel: RealtimeChannel = supabase.channel('deposits-status-pending');
 
-    const transferInfo = transactionData.trc20TransferInfo[0];
-    
-    return {
-      hash: transactionData.hash,
-      fromAddress: transferInfo.from_address,
-      toAddress: transferInfo.to_address,
-      amount: parseFloat((parseInt(transferInfo.amount_str) / 1_000_000).toFixed(6))
-    };
-  } catch (error) {
-    console.error('Error fetching transaction details from Tronscan:', error);
-    return null;
-  }
-}
+  channel
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'deposits',
+      filter: 'status=eq.pending',
+    }, (payload: SupabasePayload) => {
+      const deposit = payload.new;
 
-async function listenToBlockchainTransaction(deposit: Deposit) {
-  try {
-    // Fetch USDT TRC20 deposit records using Bybit V5 API
-    const response = await bybitClient.getDepositRecords({
-      coin: 'USDT',
-    });
-
-    //V5 API response
-    const transactions = response.result.rows;
-
-    for (const tx of transactions) {
-      //check if chain is trc20
-      if (tx.chain !== 'TRC20') continue;
-
-      // Check if transaction amount matches deposit amount
-      // Convert string amount to number and compare
-      if (Math.abs(parseFloat(tx.amount) - deposit.amount) < 0.000001) {
-        // Get detailed transaction info from Tronscan
-        const transactionDetails = await getTransactionDetailsFromTronscan(tx.txID);
-
-        if (transactionDetails) {
-          // Check if sender address matches any wallet in Supabase
-          const { data: matchedWallets } = await supabase
-            .from('deposits')
-            .select('*')
-            .eq('wallet_address', transactionDetails.fromAddress)
-            .eq('status', 'pending')
-            .eq('amount', deposit.amount);
-
-          if (matchedWallets && matchedWallets.length > 0) {
-            // Update the matched record
-            const { error } = await supabase
-              .from('deposits')
-              .update({ 
-                status: 'completed', 
-                transaction_hash: transactionDetails.hash,
-                from_wallet: transactionDetails.fromAddress
-              })
-              .eq('id', matchedWallets[0].id);
-
-            if (error) {
-              console.error('Error updating deposit status:', error);
-            } else {
-              console.log('Deposit updated successfully:', matchedWallets[0]);
-            }
-          }
-        }
+      console.log('New pending deposit detected:', deposit);
+      if (!blockchainListenerActive) {
+        blockchainListenerActive = true;
+        startBlockchainListener();
       }
-    }
-  } catch (error) {
-    console.error('Error in blockchain transaction listener:', error);
-  }
+    })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('Supabase listener for pending deposits is active.');
+      }
+    });
 }
 
 // Start the Supabase listener when the service is initialized

@@ -1,7 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { HelpCircle, ChevronDown, ChevronUp, ArrowLeft, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ChevronDown, ChevronUp, ArrowLeft, Search } from 'lucide-react';
+import { useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 
 interface FAQItem {
   question: string;
@@ -16,41 +17,42 @@ interface FAQSection {
 
 const FAQPage: React.FC = () => {
   const router = useRouter();
+  const t = useTranslations('faq'); // Hook for translations
   const [activeSection, setActiveSection] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const faqSections: FAQSection[] = [
     {
-      title: 'Account Management',
+      title: t('sections.accountManagement.title'),
       color: 'text-blue-400',
       items: [
         {
-          question: 'How do I create an account?',
-          answer: 'To create an account, click on "Sign Up"...',
+          question: t('sections.accountManagement.items.createAccount.question'),
+          answer: t('sections.accountManagement.items.createAccount.answer'),
         },
         {
-          question: 'How can I reset my password?',
-          answer: 'Go to the login page and click on "Forgot Password"...',
+          question: t('sections.accountManagement.items.resetPassword.question'),
+          answer: t('sections.accountManagement.items.resetPassword.answer'),
         },
       ],
     },
     {
-      title: 'Investment',
+      title: t('sections.investment.title'),
       color: 'text-green-400',
       items: [
         {
-          question: 'What investment plans are available?',
-          answer: 'We offer a wide range of investment plans with different levels to choose from browse our levels in the home page to understand better',
+          question: t('sections.investment.items.investmentPlans.question'),
+          answer: t('sections.investment.items.investmentPlans.answer'),
         },
       ],
     },
     {
-      title: 'Security',
+      title: t('sections.security.title'),
       color: 'text-red-400',
       items: [
         {
-          question: 'How secure is my account?',
-          answer: 'We use a robust  authentication system to validate and verify our users identity and ensure a secure application.',
+          question: t('sections.security.items.accountSecurity.question'),
+          answer: t('sections.security.items.accountSecurity.answer'),
         },
       ],
     },
@@ -73,13 +75,13 @@ const FAQPage: React.FC = () => {
           <button onClick={() => router.push('/dashboard')} className="text-muted-foreground hover:text-primary">
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl text-primary font-bold">FAQ</h1>
+          <h1 className="text-2xl text-primary font-bold">{t('title')}</h1>
         </div>
 
         <div className="relative mb-8">
           <input
             type="text"
-            placeholder="Search FAQs..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-4 pl-12 bg-background/30 border border-blue-700/50 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary"

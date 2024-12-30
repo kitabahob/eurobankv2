@@ -2,16 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { useCurrentUser } from '@/lib/auth/useCurrentUser';
+import { useRouter } from '@/i18n/routing';
 import { z } from 'zod';
+import { ArrowLeft, DollarSign, Wallet, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import BottomNav from '@/lib/components/BottomNav';
+import { useTranslations } from 'next-intl';
 
 // Zod schema for TRC20 USDT wallet address validation
 const TRC20AddressSchema = z.string().regex(
   /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
-  { message: "Invalid TRC20 USDT wallet address" }
+  { message: 'Invalid TRC20 USDT wallet address' }
 );
 
 export default function WithdrawalForm() {
-  const user = '4bd97305-6343-4b97-bb8f-1542128eec44';
+  const t = useTranslations('WithdrawalForm');
+  const router = useRouter();
+  const user = useCurrentUser();
   const [amount, setAmount] = useState<number>(0);
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [totalProfit, setTotalProfit] = useState<number>(0);
@@ -19,9 +25,9 @@ export default function WithdrawalForm() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const fetchUserProfit = async () => {
-    if (!user) return;
+    if (!user?.supabaseId) return;
 
-    const response = await fetch(`/api/user/${user}`);
+    const response = await fetch(`/api/user/${user.supabaseId}`);
     const data = await response.json();
 
     if (data.error) {
@@ -46,28 +52,27 @@ export default function WithdrawalForm() {
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Reset previous messages
+
     setError(null);
     setSuccess(null);
 
-    // Validate inputs
     if (!user) {
-      setError('User not authenticated');
+      setError(t('errors.unauthenticated'));
       return;
     }
 
     if (amount <= 0) {
-      setError('Invalid withdrawal amount');
+      setError(t('errors.invalidAmount'));
       return;
     }
 
-    if (amount>totalProfit){
-      setError('Amount is greater than total balance')
+    if (amount > totalProfit) {
+      setError(t('errors.exceedsBalance'));
+      return;
     }
 
     if (!validateWalletAddress(walletAddress)) {
-      setError('Invalid USDT TRC20 wallet address');
+      setError(t('errors.invalidWalletAddress'));
       return;
     }
 
@@ -87,101 +92,113 @@ export default function WithdrawalForm() {
       if (data.error) {
         setError(data.error);
       } else {
-        setSuccess('Withdrawal request placed successfully!');
-        fetchUserProfit(); // Refresh the profit balance
-        
-        // Reset form
+        setSuccess(t('success.withdrawalPlaced'));
+        fetchUserProfit();
         setAmount(0);
         setWalletAddress('');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t('errors.unexpected'));
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-      <form
-        onSubmit={handleWithdraw}
-        className="w-full max-w-md bg-blue-800/50 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-blue-700/50"
-      >
-        <h1 className="text-2xl font-bold text-primary mb-6">Make a Withdrawal</h1>
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => router.push('/dashboard')} 
+              className="text-muted-foreground hover:text-primary"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-2xl text-primary font-bold">{t('header.title')}</h1>
+          </div>
+        </div>
 
-        {totalProfit !== null && (
-          <p className="text-sm text-muted-foreground mb-4">
-             Total balance: <span className="text-primary font-semibold">${totalProfit}</span>
-          </p>
-        )}
+        {/* Overview Section */}
+        <div className="bg-blue-900/50 backdrop-blur-md p-6 mb-8 rounded-2xl border border-blue-700/50 flex flex-col items-center">
+          <div className="w-24 h-24 bg-primary-600 rounded-full flex items-center justify-center mb-4">
+            <DollarSign className="w-12 h-12 text-primary-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold text-primary mb-2">{t('overview.title')}</h2>
+          {totalProfit !== null && (
+            <p className="text-muted-foreground text-center">
+              {t('overview.balance', { balance: totalProfit })}
+            </p>
+          )}
+        </div>
 
+        {/* Status Messages */}
         {error && (
-          <div className="mb-4 p-4 rounded-lg bg-red-800/50 text-red-400">
-            {error}
+          <div className="bg-red-900/50 backdrop-blur-md rounded-2xl p-4 mb-6 border border-red-700/50 flex items-center space-x-3">
+            <AlertTriangle className="text-red-400 w-6 h-6 flex-shrink-0" />
+            <p className="text-red-200">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 p-4 rounded-lg bg-green-800/50 text-green-400">
-            {success}
+          <div className="bg-green-900/50 backdrop-blur-md rounded-2xl p-4 mb-6 border border-green-700/50 flex items-center space-x-3">
+            <CheckCircle2 className="text-green-400 w-6 h-6 flex-shrink-0" />
+            <p className="text-green-200">{success}</p>
           </div>
         )}
 
-        {/* Withdrawal Amount Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="withdrawAmount"
-            className="block text-sm text-muted-foreground mb-2"
+        {/* Form */}
+        <form onSubmit={handleWithdraw}>
+          <div className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 mb-6 border border-blue-700/50 space-y-6">
+            <div>
+              <label htmlFor="withdrawAmount" className="block text-lg font-semibold text-primary mb-4">
+                {t('form.amountLabel')}
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                <input
+                  id="withdrawAmount"
+                  type="number"
+                  placeholder={t('form.amountPlaceholder')}
+                  value={amount}
+                  onChange={(e) => setAmount(parseFloat(e.target.value))}
+                  min="0"
+                  className="w-full px-4 py-3 bg-background/30 text-primary rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border border-blue-700/50 pl-12"
+                />
+              </div>
+            </div>
+
+            {/* Wallet Address Input */}
+            <div>
+              <label htmlFor="walletAddress" className="block text-lg font-semibold text-primary mb-4">
+                {t('form.walletLabel')}
+              </label>
+              <div className="relative">
+                <Wallet className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                <input
+                  id="walletAddress"
+                  type="text"
+                  placeholder={t('form.walletPlaceholder')}
+                  value={walletAddress}
+                  onChange={(e) => setWalletAddress(e.target.value)}
+                  className="w-full px-4 py-3 bg-background/30 text-primary rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary border border-blue-700/50 pl-12"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={!user || totalProfit === null || !walletAddress}
+            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center space-x-3 transition-all ${
+              (totalProfit === null || !walletAddress) ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Enter Withdrawal Amount:
-          </label>
-          <input
-            id="withdrawAmount"
-            type="number"
-            placeholder="Enter amount"
-            value={amount}
-            onChange={(e) => setAmount(parseFloat(e.target.value))}
-            min="0"
-            className="w-full px-4 py-2 bg-secondary text-primary rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        {/* USDT TRC20 Wallet Address Input */}
-        <div className="mb-4">
-          <label
-            htmlFor="walletAddress"
-            className="block text-sm text-muted-foreground mb-2"
-          >
-            USDT TRC20 Wallet Address:
-          </label>
-          <input
-            id="walletAddress"
-            type="text"
-            placeholder="Enter TRC20 USDT wallet address"
-            value={walletAddress}
-            onChange={(e) => setWalletAddress(e.target.value)}
-            className="w-full px-4 py-2 bg-secondary text-primary rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        {/* Disclaimer */}
-        <div className="mb-4 text-xs text-muted-foreground bg-yellow-800/20 p-3 rounded-lg">
-          <strong>Disclaimer:</strong> You are responsible for verifying the accuracy of the USDT TRC20 wallet address. 
-          We will not be held responsible for any losses or refunds resulting from incorrect wallet addresses 
-          entered by the user.
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={!user || totalProfit === null || !walletAddress}
-          className={`w-full px-4 py-2 rounded-lg text-primary-foreground font-semibold shadow-md ${
-            (totalProfit === null || !walletAddress) 
-              ? 'bg-gray-500 cursor-not-allowed' 
-              : 'bg-primary hover:bg-primary-600'
-          }`}
-        >
-          {totalProfit === null ? 'Loading...' : 'Withdraw'}
-        </button>
-      </form>
+            <DollarSign className="w-6 h-6" />
+            <span>{totalProfit === null ? t('form.loading') : t('form.submitButton')}</span>
+          </button>
+        </form>
+      </div>
+      <BottomNav />
     </div>
   );
 }

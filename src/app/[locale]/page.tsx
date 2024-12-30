@@ -1,6 +1,8 @@
 'use client'
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Navbar from '@/lib/components/landingpage/header';
 import { 
   Award, 
   Globe, 
@@ -46,8 +48,8 @@ const EuroBankLandingPage = () => {
   const pricingPlans = [
     {
       level: 'VIP 1',
-      minInvestment: 500,
-      monthlyReturn: 5,
+      minInvestment: 60,
+      monthlyReturn: 30,
       features: [
         t('pricing.vip1.feature1'),
         t('pricing.vip1.feature2')
@@ -55,8 +57,8 @@ const EuroBankLandingPage = () => {
     },
     {
       level: 'VIP 5',
-      minInvestment: 5000,
-      monthlyReturn: 10,
+      minInvestment: 500,
+      monthlyReturn: 250,
       features: [
         t('pricing.vip5.feature1'),
         t('pricing.vip5.feature2')
@@ -65,8 +67,8 @@ const EuroBankLandingPage = () => {
     },
     {
       level: 'VIP 10',
-      minInvestment: 50000,
-      monthlyReturn: 20,
+      minInvestment: 15000,
+      monthlyReturn: 7500,
       features: [
         t('pricing.vip10.feature1'),
         t('pricing.vip10.feature2')
@@ -79,46 +81,7 @@ const EuroBankLandingPage = () => {
       className="min-h-screen bg-background text-foreground"
     >
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-secondary/30 backdrop-blur-md z-50">
-        <div className="container mx-auto flex justify-between items-center p-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-3xl">🏦</span>
-            <h1 className="text-xl font-bold text-foreground">EuroBank</h1>
-          </div>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex space-x-4 items-center">
-            <a href="#features" className="text-foreground hover:text-primary transition-colors">
-              {t('nav.features')}
-            </a>
-            <a href="#pricing" className="text-foreground hover:text-primary transition-colors">
-              {t('nav.pricing')}
-            </a>
-            <a href="#apps" className="text-foreground hover:text-primary transition-colors">
-              {t('nav.apps')}
-            </a>
-            <a href="#faqs" className="text-foreground hover:text-primary transition-colors">
-              {t('nav.faqs')}
-            </a>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <button className="flex items-center bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-md hover:bg-primary/90  transition-all group
-            " onClick={navigateToLogin}>
-              <LogIn className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform " />
-              {t('nav.signin')}
-            </button>
-
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </nav>
-
-      {/* Rest of the component remains the same, just replace all 
-          useTranslation('common') calls with useTranslations('landingPage') */}
-
-
-
+      <Navbar/>
 
       {/* Hero Section */}
       <section className="
@@ -182,10 +145,7 @@ const EuroBankLandingPage = () => {
         </div>
       </section>
 
-      {/* The rest of the component follows the same pattern of using t() from useTranslations */}
-
-      {/* Remaining sections (Features, Pricing, Apps, FAQs, Footer) 
-           will use the same translation method */}
+     
              {/* Features Section */}
       <section id="features" className="container mx-auto py-16 px-4">
         <h3 className="text-3xl font-bold text-center mb-12">{t('features.title')}</h3>

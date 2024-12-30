@@ -6,7 +6,6 @@ import {
   Clock, 
   CheckCircle, 
   XCircle, 
-  RefreshCw, 
   Search 
 } from 'lucide-react';
 
@@ -106,7 +105,7 @@ const AdminWithdrawalDashboard = () => {
         } else {
           setError(data.error || 'Failed to fetch withdrawals');
         }
-      } catch (err) {
+      } catch (error) {
         setError('Network error. Please try again later.');
       } finally {
         setLoading(false);

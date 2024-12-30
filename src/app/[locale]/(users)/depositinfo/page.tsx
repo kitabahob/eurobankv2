@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'; 
 import { 
   CreditCard, 
   Clock, 
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 
 export default function DepositInfo() {
+  const t = useTranslations('DepositInfo'); // Accessing translations
   const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes in seconds
   const depositAddress = 'TXrjUqgwhAoTk8JDj6UsR4RKb4sK3h9DP3'; // Example USDT TRC20 address
@@ -17,7 +19,7 @@ export default function DepositInfo() {
   // Copy to clipboard function
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
+      alert(t('copySuccess'));
     });
   };
 
@@ -68,15 +70,15 @@ export default function DepositInfo() {
                 <path d="m15 18-6-6 6-6"/>
               </svg>
             </button>
-            <h1 className="text-2xl text-primary font-bold">Deposit Information</h1>
+            <h1 className="text-2xl text-primary font-bold">{t('depositInfo')}</h1>
           </div>
         </div>
 
         {/* Deposit Success */}
         <div className="bg-blue-900/50 backdrop-blur-md p-6 mb-8 rounded-2xl border border-blue-700/50 flex flex-col items-center">
           <CheckCircle className="w-16 h-16 text-green-400 mb-4" />
-          <h2 className="text-2xl font-bold text-primary mb-2">Deposit Initiated Successfully</h2>
-          <p className="text-muted-foreground text-center">Your deposit is being processed. Please complete the payment within the time frame.</p>
+          <h2 className="text-2xl font-bold text-center text-primary mb-2">{t('depositSuccess')}</h2>
+          <p className="text-muted-foreground text-center">{t('depositProcessing')}</p>
         </div>
 
         {/* Time Remaining */}
@@ -85,11 +87,11 @@ export default function DepositInfo() {
             <div className="text-yellow-400 p-2 rounded-full bg-secondary">
               <Clock className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-semibold text-primary">Time Remaining</h3>
+            <h3 className="text-xl font-semibold text-primary">{t('timeRemaining')}</h3>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary mb-2">{formatTime(timeRemaining)}</p>
-            <p className="text-muted-foreground">Payment must be completed within 30 minutes</p>
+            <p className="text-muted-foreground">{t('timeLimitNotice')}</p>
           </div>
         </div>
 
@@ -99,11 +101,11 @@ export default function DepositInfo() {
             <div className="text-blue-400 p-2 rounded-full bg-secondary">
               <CreditCard className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-semibold text-primary">Deposit Address</h3>
+            <h3 className="text-xl font-semibold text-primary">{t('depositAddress')}</h3>
           </div>
           <div className="bg-background/30 p-3 rounded-xl flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">USDT TRC20 Address</p>
+              <p className="text-sm text-muted-foreground">{t('usdtTrc20Address')}</p>
               <p className="font-medium text-primary break-all">{depositAddress}</p>
             </div>
             <Copy 
@@ -111,8 +113,8 @@ export default function DepositInfo() {
               onClick={() => copyToClipboard(depositAddress)}
             />
           </div>
-          <p className="text-sm text-muted-foreground mt-4">
-            Only send USDT (TRC20) to this address. Sending other cryptocurrencies may result in permanent loss.
+          <p className="text-sm text-muted-foreground text-center mt-4">
+            {t('onlySendUsdt')}
           </p>
         </div>
 
@@ -122,12 +124,10 @@ export default function DepositInfo() {
             <div className="text-red-400 p-2 rounded-full bg-secondary">
               <Clock className="w-5 h-5" />
             </div>
-            <h3 className="text-xl font-semibold text-red-400">Important Notice</h3>
+            <h3 className="text-xl font-semibold text-red-400">{t('importantNotice')}</h3>
           </div>
           <p className="text-muted-foreground">
-            • Deposits are only valid within the 30-minute time frame
-            • After 30 minutes, you will need to initiate a new deposit
-            • Ensure you send the exact amount to complete the transaction
+            {t('importantDetails')}
           </p>
         </div>
       </div>
