@@ -1,7 +1,7 @@
 'use client';
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter,usePathname } from '@/i18n/routing';
-import Image from 'next/image';
 import { 
   Wallet, 
   ArrowDownToLine, 
@@ -17,6 +17,10 @@ import {
 } from 'lucide-react';
 import { useCurrentUser } from '@/lib/auth/useCurrentUser';
 import { useTranslations } from 'next-intl';
+
+import dynamic from 'next/dynamic';
+const Loader = dynamic(() => import('@/lib/components/loader/loading'), { ssr: false });
+
 
 const EurobankDashboard = () => {
   const t = useTranslations('EurobankDashboard'); // Using translations
@@ -120,19 +124,12 @@ const EurobankDashboard = () => {
     </div>
   );
 
-  // Loading state
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-primary">
-        {t('loadingUser')}
-      </div>
-    );
-  }
+  
 
-  if (loading) {
+  if (!user || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-primary">
-        {t('loadingDashboard')}
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
       </div>
     );
   }
@@ -152,7 +149,7 @@ const EurobankDashboard = () => {
         {/* Mobile Header */}
         <div className="bg-secondary p-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <img src="/e.svg" alt="logo" width={50} />
+            <Image src="/e.svg" alt="logo" width={50} />
             <span className="text-xl font-bold text-primary">{t('title')}</span>
           </div>
           <div onClick={navigateToAnouncement} className="flex items-center space-x-4">
@@ -245,7 +242,7 @@ const EurobankDashboard = () => {
           {/* Header */}
           <div className="flex justify-between items-center py-4 mb-8">
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-primary-500">€</span>
+              <Image src="/e.svg" alt="€" width={50} />
               <h1 className="text-2xl text-primary font-bold">{t('title')}</h1>
             </div>
             <div className="flex items-center space-x-4">

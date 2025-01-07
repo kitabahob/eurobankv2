@@ -2,7 +2,7 @@ import { supabase } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-const PERSONAL_WALLET_ADDRESS = 'TSrqBqNgsUVHkjBcZc2GEDHTCUdPszgoQt';
+const PERSONAL_WALLET_ADDRESS = 'TMaLDP1gPgiPVr8aoKm1YFLA56b8Dihgpj';
 const USDT_CONTRACT_ADDRESS = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 
 export async function POST(request: Request) {

@@ -1,22 +1,17 @@
 'use client'
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import Navbar from '@/lib/components/landingpage/header';
 import { 
-  Award, 
-  Globe, 
+ 
   Users, 
   Shield, 
-  Wallet, 
   TrendingUp, 
   Star, 
   ArrowRight, 
-  Smartphone,
-  LogIn
+  Smartphone
 } from 'lucide-react';
 import FAQs from '@/lib/components/landingpage/faqs';
-import LanguageSwitcher from '@/lib/components/LanguageSwitcher';
 import { useRouter } from '@/i18n/routing';
 
 const EuroBankLandingPage = () => {

@@ -214,7 +214,7 @@ export default function DepositStatus() {
                       className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl flex items-center justify-center space-x-2"
                     >
                       <AlertCircle className="w-5 h-5" />
-                      <span>Verify Transaction</span>
+                      <span>{t('verifyTransaction')}</span>
                     </button>
                   )}
 

@@ -1,66 +1,97 @@
 'use client';
 
-import React from 'react';
-import { Bell } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { ArrowLeft, Bell } from 'lucide-react';
+import { useRouter } from '@/i18n/routing';
 
-export default function Announcement() {
-  // Define the type for Announcement
-  type Announcement = {
-    id: number;
-    title: string;
-    date: string;
-    content: string;
-  };
+// Define the type for an announcement
+interface Announcement {
+  id: number;
+  title: string;
+  description: string;
+  timestamp: string;
+}
 
-  // Sample announcement data
-  const announcements: Announcement[] = [
-    {
-      id: 1,
-      title: "Network Maintenance Scheduled",
-      date: "December 15, 2024",
-      content:
-        "Planned system upgrade to enhance transaction processing speed and security. Minimal disruption expected.",
-    },
-    {
-      id: 2,
-      title: "New Trading Pair Launched",
-      date: "December 20, 2024",
-      content:
-        "Exciting new trading pair added to our platform. Enhanced liquidity and trading opportunities now available!",
-    },
-    {
-      id: 3,
-      title: "Holiday Trading Hours",
-      date: "December 24, 2024",
-      content:
-        "Updated trading hours for the holiday season. 24/7 emergency support will be maintained.",
-    },
-  ];
+const AnnouncementPage: React.FC = () => {
+  const supabase = createClient();
+  const router = useRouter();
+  const back = ()=>{
+    router.back();
+  }
+
+  // State to store announcements
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  // Fetch announcements from the database on component mount
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('announcement') 
+          .select('*')
+          .order('created_at', { ascending: false }); // Order by latest announcements
+
+        if (error) {
+          console.error('Error fetching announcements:', error);
+        } else {
+          setAnnouncements(data || []); // Set data or fallback to an empty array
+        }
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      }
+    };
+
+    fetchAnnouncements();
+  }, [supabase]);
 
   return (
-    <div className="bg-blue min-h-screen py-10">
-      <div className="max-w-4xl mx-auto px-4">
-        <h2 className="text-3xl self-center font-bold text-blue-600 mb-6">Announcements</h2>
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
+          <div className="flex items-center space-x-4">
+            <button onClick={back} className="text-muted-foreground hover:text-primary">
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-2xl text-primary font-bold">Announcements</h1>
+          </div>
+        </div>
 
+        {/* Announcement Overview */}
+        <div className="bg-blue-900/50 backdrop-blur-md p-6 mb-8 rounded-2xl border border-blue-700/50 flex flex-col items-center">
+          <div className="w-24 h-24 bg-primary-600 rounded-full flex items-center justify-center mb-4">
+            <Bell className="w-12 h-12 text-primary-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold text-primary mb-2">Latest Updates</h2>
+          <p className="text-muted-foreground text-center">
+            Stay informed about our latest news and updates
+          </p>
+        </div>
+
+        {/* Announcements List */}
         <div className="space-y-4">
-          {announcements.map((announcement) => (
-            <div
-              key={announcement.id}
-              className="bg-accent-800/5o shadow-xl rounded-lg p-6 hover:bg-blue-700/50 transition-shadow border border-blue-700/50"
-              
-            >
-              <div className="flex items-center mb-4">
-                <Bell className="text-blue-500 w-6 h-6 mr-3" />
-                <h3 className="text-lg font-semibold text-primary">
+          {announcements.length > 0 ? (
+            announcements.map((announcement) => (
+              <div
+                key={announcement.id}
+                className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 border border-blue-700/50 hover:border-blue-600/50 transition-colors"
+              >
+                <h3 className="text-xl font-semibold text-primary mb-3">
                   {announcement.title}
                 </h3>
+                <p className="text-muted-foreground">
+                  {announcement.description}
+                </p>
               </div>
-              <p className="text-sm text-blue-500 mb-2">{announcement.date}</p>
-              <p className="text-grey-700">{announcement.content}</p>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-muted-foreground text-center">No announcements available at the moment.</p>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default AnnouncementPage;

@@ -1,4 +1,5 @@
-import { makeRequest } from "../../../utils/bitgetApi"; // Replace with your actual Bitget client import
+import { NextRequest, NextResponse } from 'next/server';
+import { makeRequest } from "../../../utils/bitgetApi";
 
 /**
  * Process withdrawal using Bitget API
@@ -8,7 +9,7 @@ import { makeRequest } from "../../../utils/bitgetApi"; // Replace with your act
  * @param chain - Blockchain network (default: 'TRC20')
  * @returns { transactionHash: string }
  */
-export async function processWithdrawal(
+async function processWithdrawal(
   walletAddress: string,
   amount: number,
   coin = 'USDT',
@@ -38,7 +39,7 @@ export async function processWithdrawal(
     // Make the API call
     const response = await makeRequest(
       'POST',
-      '/api/spot/v1/wallet/withdrawal', // Correct endpoint for Bitget API
+      '/api/spot/v1/wallet/withdrawal',
       withdrawalData
     );
 
@@ -49,10 +50,9 @@ export async function processWithdrawal(
     }
 
     return {
-      transactionHash: response.data.id, // Adjust if the structure is different
+      transactionHash: response.data.id,
     };
   } catch (error) {
-    // Enhanced error logging
     console.error('Withdrawal error details:', {
       error: error instanceof Error ? {
         name: error.name,
@@ -72,5 +72,34 @@ export async function processWithdrawal(
     } else {
       throw new Error('Unexpected error during withdrawal process');
     }
+  }
+}
+
+// POST handler for the API route
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { walletAddress, amount, coin, chain } = body;
+
+    // Validate required fields
+    if (!walletAddress || !amount) {
+      return NextResponse.json(
+        { error: 'Wallet address and amount are required' },
+        { status: 400 }
+      );
+    }
+
+    const result = await processWithdrawal(walletAddress, amount, coin, chain);
+    
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('API route error:', error);
+    
+    return NextResponse.json(
+      { 
+        error: error instanceof Error ? error.message : 'Internal server error' 
+      },
+      { status: 500 }
+    );
   }
 }

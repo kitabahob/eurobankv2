@@ -183,7 +183,8 @@
             "copySuccess": "Copied to clipboard!",
             "onlySendUsdt": "Only send USDT (TRC20) to this address. Sending other cryptocurrencies may result in permanent loss.",
             "importantNotice": "Important Notice",
-            "importantDetails": "• Deposits are only valid within the 30-minute time frame\n• After 30 minutes, you will need to initiate a new deposit\n• Ensure you send the exact amount to complete the transaction"
+            "importantDetails": "• Deposits are only valid within the 30-minute time frame\n• After 30 minutes, you will need to initiate a new deposit\n• Ensure you send the exact amount to complete the transaction",
+            "verifyDeposit": "Verify Deposit"
           },
           
             "DepositStatus": {

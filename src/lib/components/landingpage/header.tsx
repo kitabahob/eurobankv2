@@ -29,7 +29,7 @@ export default function Navbar() {
             <Image src="/e.svg" alt="Logo" height={40} width={100} priority />
           </div>
 
-          <h1 className="text-xl font-bold text-foreground">EuroBank</h1>
+          <h1 className="text-xl font-bold text-primary">EuroBank</h1>
         </div>
     {/* Desktop Navigation Links */}
     <div className="hidden md:flex space-x-4 items-center">

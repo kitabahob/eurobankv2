@@ -23,6 +23,9 @@ export default function DepositInfo() {
     });
   };
 
+  const navigateToDepositStatus =()=>{
+    router.push('/depositStatus')
+  }
   // Timer countdown effect
   useEffect(() => {
     const timer = setInterval(() => {
@@ -53,7 +56,7 @@ export default function DepositInfo() {
         <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
           <div className="flex items-center space-x-4">
             <button 
-              onClick={() => router.push('/dashboard')} 
+              onClick={() => router.back()} 
               className="text-muted-foreground hover:text-primary"
             >
               <svg 
@@ -116,6 +119,16 @@ export default function DepositInfo() {
           <p className="text-sm text-muted-foreground text-center mt-4">
             {t('onlySendUsdt')}
           </p>
+           {/* verify Deposit  */}
+           <button
+
+              onClick={navigateToDepositStatus}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl mt-6 flex items-center justify-center space-x-3 transition-all"
+            >
+              <span>{t('verifyDeposit')}</span>
+            </button>
+         
+       
         </div>
 
         {/* Warning */}

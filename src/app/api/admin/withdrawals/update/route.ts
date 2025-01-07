@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/db';
-import { processWithdrawal } from '@/app/api/bitget/route';
+import { headers } from 'next/headers';
 
-// Define input type for better type safety
 interface WithdrawalStatusInput {
   id: string;
   status: 'pending' | 'delayed' | 'canceled' | 'completed';
@@ -15,6 +14,7 @@ interface WithdrawalStatusInput {
 export async function POST(request: Request) {
   try {
     const { id, status, reason, userId, amount, wallet_address } = await request.json() as WithdrawalStatusInput;
+    const baseURL = process.env.BASEURL
 
     // Input validation
     if (!id || !status || !userId || amount <= 0 || !wallet_address) {
@@ -54,10 +54,36 @@ export async function POST(request: Request) {
     if (status === 'completed') {
       try {
         // Process the actual withdrawal using the Bitget API
-        const { transactionHash } = await processWithdrawal(
-          wallet_address,
-          amount
-        );
+    const headersList = await headers();
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    
+    const response = await fetch(`${protocol}://${host}/api/bitget`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount,
+        walletAddress: wallet_address,
+      }),
+    });
+    console.log(`${protocol}://${host}/api/bitget`)
+
+  
+        // Check if the response was successful
+        if (!response.ok) {
+          throw new Error(`Failed to process withdrawal: ${response.statusText}`);
+        }
+        
+
+        
+
+        // Parse the JSON response to extract the transaction hash
+        const data = await response.json();
+        const { transactionHash } = data;
+
+        if (!transactionHash) {
+          throw new Error('Transaction hash not found in response');
+        }
 
         // Update the withdrawal queue to mark it as completed
         const { error: statusUpdateError } = await supabase
@@ -78,8 +104,8 @@ export async function POST(request: Request) {
             user_id: userId,
             withdrawal_id: id,
             amount,
-            transaction_hash: transactionHash,
-            wallet_address, 
+            transaction_hash: transactionHash, // Now using the transactionHash
+            wallet_address,
           });
 
         if (listError) {
@@ -87,6 +113,7 @@ export async function POST(request: Request) {
           console.error('Withdrawal list insert error:', listError);
           return NextResponse.json({ error: 'Failed to insert into withdrawal_list' }, { status: 500 });
         }
+
       } catch (withdrawalError) {
         await rollback(withdrawalError);
         console.error('Withdrawal processing error:', withdrawalError);
