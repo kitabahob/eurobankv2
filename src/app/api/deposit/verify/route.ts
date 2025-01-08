@@ -39,6 +39,7 @@ export async function POST(request: Request) {
 
     const response = await axios.get(trongridUrl);
     console.log('TronGrid API response status:', response.status);
+    console.log('TronGrid API response data:', response.data);
 
     if (!response.data || !response.data.data || !Array.isArray(response.data.data)) {
       console.error('Invalid response from TronGrid:', response.data);

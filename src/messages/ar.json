@@ -199,9 +199,14 @@
             "amount": "المبلغ",
             "status": "الحالة",
             "expiresAt": "تاريخ انتهاء الصلاحية",
-            "transaction": "المعاملة"
-          
-        },        
+            "transaction": "المعاملة",
+            "verifyTransaction":"تحقق من المعاملة"          
+        },  
+        
+        "layout":{
+          "notAuthenticated": "غير مصدق",
+          "login": "تسجيل الدخول"
+        },      
           "faq": {
             "title": "الأسئلة الشائعة",
             "searchPlaceholder": "ابحث في الأسئلة الشائعة...",

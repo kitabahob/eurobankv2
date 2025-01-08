@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const { user_id, amount, wallet_address } = await request.json();
 
-  const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
 
   // Check for existing pending deposits
   const { data: existingDeposit } = await supabase

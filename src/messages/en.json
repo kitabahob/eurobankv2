@@ -201,8 +201,13 @@
               "amount": "Amount",
               "status": "Status",
               "expiresAt": "Expires At",
-              "transaction": "Transaction"
+              "transaction": "Transaction",
+              "verifyTransaction": "Verify Transaction"
             
+          },
+          "layout":{
+            "notAuthenticated": "User not authenticated",
+            "login": "Login"
           },
             "faq": {
               "title": "FAQ",

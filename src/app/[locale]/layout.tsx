@@ -6,6 +6,7 @@ import { getMessages } from "next-intl/server";
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -21,6 +22,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Eurobank",
   description: "Cryptocurrency investment platform",
+  icons:{
+    icon:'/e.svg'
+  }
 };
 
 type RootLayoutProps = {
@@ -43,6 +47,7 @@ export default async function RootLayout(props: RootLayoutProps) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+     
       <body  className={`
         min-h-screen 
         overflow-x-hidden

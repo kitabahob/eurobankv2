@@ -5,17 +5,17 @@ import DashboardPage from '@/lib/components/Admin/DashboardPage';
 import WithdrawalsPage from '@/lib/components/Admin/WithdrawalPage';
 import AnnouncementsPage from '@/lib/components/Admin/AnnouncementPage';
 import { createClient } from '@/utils/supabase/client';
-import { auth } from '@/firebase/config'; // Ensure correct import for Firebase auth
+import { auth } from '@/firebase/config';
 
 interface NavItem {
-  id: string;
-  icon: React.FC<{ className?: string }>;
+  id: 'dashboard' | 'withdrawals' | 'announcements';
+  icon: LucideIcon;
   label: string;
 }
 
 const AdminDashboard: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<NavItem['id']>('dashboard');
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // Track admin status
 
   const supabase = createClient();
 
@@ -32,6 +32,7 @@ const AdminDashboard: React.FC = () => {
         const userEmail = currentUser.email;
         console.log(userEmail);
 
+
         // Query Supabase admin table
         const { data, error } = await supabase
           .from('Admin')
@@ -45,6 +46,7 @@ const AdminDashboard: React.FC = () => {
           return;
         }
 
+        // Check if email exists in admin table
         setIsAdmin(data ? true : false);
       } catch (err) {
         console.error('Error checking admin status:', err);
@@ -74,19 +76,6 @@ const AdminDashboard: React.FC = () => {
     </button>
   );
 
-  const renderMobileNavButton = (item: NavItem) => (
-    <button
-      key={item.id}
-      onClick={() => setSelectedPage(item.id)}
-      className={`flex flex-col items-center py-3 px-4 flex-1 ${
-        selectedPage === item.id ? 'text-blue-500' : 'text-gray-300'
-      }`}
-    >
-      <item.icon className="w-6 h-6 mb-1" />
-      <span className="text-xs">{item.label}</span>
-    </button>
-  );
-
   const getPageContent = (pageId: NavItem['id']) => {
     switch (pageId) {
       case 'dashboard':
@@ -99,10 +88,12 @@ const AdminDashboard: React.FC = () => {
   };
 
   if (isAdmin === null) {
+    // Show a loading state while checking admin status
     return <div className="flex items-center justify-center h-screen text-white">Checking admin status...</div>;
   }
 
   if (isAdmin === false) {
+    // Redirect or show an error if not an admin
     return <div className="flex items-center justify-center h-screen text-red-500">Access Denied. Admins only.</div>;
   }
 
@@ -137,13 +128,6 @@ const AdminDashboard: React.FC = () => {
         <main className="flex-1 overflow-y-auto p-4 bg-gray-900 mb-16 md:mb-0">
           {getPageContent(selectedPage)}
         </main>
-
-        {/* Mobile Navigation */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700">
-          <div className="flex justify-around items-center px-2">
-            {navItems.map(renderMobileNavButton)}
-          </div>
-        </nav>
       </div>
     </div>
   );
