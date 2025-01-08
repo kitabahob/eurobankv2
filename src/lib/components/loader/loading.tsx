@@ -6,7 +6,7 @@ const Loader: React.FC = () => {
     <div className={styles.loader}>
       {Array.from({ length: 8 }, (_, i) => (
         <div key={i} className={`${styles.box} ${styles[`box${i}`]}`}>
-            <Image src="/e.svg" alt="Admin" width={60} />
+            <Image src="/e.svg" alt="Admin" height={40} width={60} />
           <div />
         </div>
       ))}

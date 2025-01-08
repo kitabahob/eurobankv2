@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, DollarSign, AlertCircle, Clock, Info } from 'lucide-react';
 import BottomNav from '@/lib/components/BottomNav';
+import { createClient } from '@/utils/supabase/client';
 
 interface Withdrawal {
   id: string;
@@ -21,6 +22,7 @@ export default function UserWithdrawalStatus() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const supabase= createClient()
 
   const toWithdrawal = () => router.push('/withdrawal');
 

@@ -1,4 +1,5 @@
 'use client';
+import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useRouter,usePathname } from '@/i18n/routing';
@@ -37,31 +38,35 @@ const EurobankDashboard = () => {
   const user = useCurrentUser();
   const router = useRouter();
   const pathname= usePathname();
-
+  const supabase = createClient()
   // Fetch user data from API
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
-
+  
       setLoading(true);
       try {
-        const response = await fetch(`/api/user/${user.supabaseId}`);
-        if (!response.ok) throw new Error(t('fetchError'));
-
-        const data = await response.json();
+        const { data, error } = await supabase
+          .from('users')
+          .select('daily_profit, ref_profit, total_profit, email, profit_balance')
+          .eq('id', user.supabaseId)
+          .single();
+  
+        if (error) throw error;
+  
         let defaultbalance;
-        if (data.profit_balance==0){
-          defaultbalance=data.total_profit
-        }else{
-          defaultbalance=data.profit_balance
+        if (data.profit_balance === 0) {
+          defaultbalance = data.total_profit;
+        } else {
+          defaultbalance = data.profit_balance;
         }
-
+  
         setUserData({
           dailyEarning: data.daily_profit || 0,
           referralProfit: data.ref_profit || 0,
           totalProfit: data.total_profit || 0,
           username: data.email.split('@')[0],
-          balance: defaultbalance|| 0,
+          balance: defaultbalance || 0,
         });
       } catch (err) {
         console.error(t('fetchError'), err);
@@ -70,9 +75,9 @@ const EurobankDashboard = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUserData();
-  }, [user, t]);
+  }, [user, t, supabase]);
 
   // Navigation functions
   const navigateToWithdraw = () => router.push('/withdrawalstatus');
@@ -149,7 +154,7 @@ const EurobankDashboard = () => {
         {/* Mobile Header */}
         <div className="bg-secondary p-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Image src="/e.svg" alt="logo" width={50} />
+            <Image src="/e.svg" alt="logo" height={50} width={50} />
             <span className="text-xl font-bold text-primary">{t('title')}</span>
           </div>
           <div onClick={navigateToAnouncement} className="flex items-center space-x-4">
@@ -242,7 +247,7 @@ const EurobankDashboard = () => {
           {/* Header */}
           <div className="flex justify-between items-center py-4 mb-8">
             <div className="flex items-center space-x-4">
-              <Image src="/e.svg" alt="€" width={50} />
+              <Image src="/e.svg" alt="€"  height={100} width={50} />
               <h1 className="text-2xl text-primary font-bold">{t('title')}</h1>
             </div>
             <div className="flex items-center space-x-4">

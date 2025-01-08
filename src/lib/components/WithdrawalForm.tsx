@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { ArrowLeft, DollarSign, Wallet, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import BottomNav from '@/lib/components/BottomNav';
 import { useTranslations } from 'next-intl';
+import { createClient } from '@/utils/supabase/client';
 
 // Zod schema for TRC20 USDT wallet address validation
 const TRC20AddressSchema = z.string().regex(
@@ -23,17 +24,26 @@ export default function WithdrawalForm() {
   const [totalProfit, setTotalProfit] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const supabase = createClient();
 
   const fetchUserProfit = async () => {
     if (!user?.supabaseId) return;
 
-    const response = await fetch(`/api/user/${user.supabaseId}`);
-    const data = await response.json();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('profit_balance')
+        .eq('id', user.supabaseId)
+        .single();
 
-    if (data.error) {
-      setError(data.error);
-    } else {
-      setTotalProfit(data.profit_balance);
+      if (error) throw error;
+
+      if (data) {
+        setTotalProfit(data.profit_balance || 0);
+      }
+    } catch (err) {
+      console.error('Error fetching profit:', err);
+      setError(t('errors.fetchError'));
     }
   };
 

@@ -34,7 +34,7 @@ const DepositHistory = () => {
 
   useEffect(() => {
     fetchDeposits();
-  }, []);
+  }, [fetchDeposits]);
 
   const handleFilterChange = (e) => {
     setFilters(prev => ({

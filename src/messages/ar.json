@@ -96,7 +96,8 @@
     "loginButton": "تسجيل الدخول",
     "signupLink": "ليس لديك حساب؟ سجل الآن",
     "forgotPasswordLink": "هل نسيت كلمة المرور؟",
-    "loginSuccess": "تم تسجيل الدخول بنجاح!"
+    "loginSuccess": "تم تسجيل الدخول بنجاح!",
+    "loading":"جاري التحميل..."
   },
     
   "title": "نسيت كلمة المرور",

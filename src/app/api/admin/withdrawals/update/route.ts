@@ -14,7 +14,6 @@ interface WithdrawalStatusInput {
 export async function POST(request: Request) {
   try {
     const { id, status, reason, userId, amount, wallet_address } = await request.json() as WithdrawalStatusInput;
-    const baseURL = process.env.BASEURL
 
     // Input validation
     if (!id || !status || !userId || amount <= 0 || !wallet_address) {

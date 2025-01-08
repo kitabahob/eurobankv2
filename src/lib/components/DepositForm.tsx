@@ -9,7 +9,6 @@ import { useTranslations } from 'next-intl';
 
 export default function DepositPage() {
   const router = useRouter();
-  const pathname = usePathname(); 
   const t = useTranslations('DepositPage'); 
   const [selectedAmount, setSelectedAmount] = useState('');
   const [walletAddress, setWalletAddress] = useState('');

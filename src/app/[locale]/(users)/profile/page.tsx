@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { logout } from '@/lib/auth/auth';
 import { useCurrentUser } from '@/lib/auth/useCurrentUser';
+import { createClient } from '@/utils/supabase/client';
 import { 
   User, 
   Mail, 
@@ -20,38 +21,54 @@ import { useRouter } from '@/i18n/routing';
 import BottomNav from '@/lib/components/BottomNav';
 
 const ProfilePage = () => {
-  const t = useTranslations('ProfilePage'); // Translations for the page
+  const t = useTranslations('ProfilePage');
   const [userData, setUserData] = useState({
-    username: 'CryptoTrader123',
-    email: 'cryptotrader123@eurobank.com',
+    username: '',
+    email: '',
     phone: 'N/A',
-    memberSince: 'January 2023',
-    referralCode: 'EURO2024XYZ',
-    level: 3,
-    totalReferrals: 12,
+    memberSince: '',
+    referralCode: '',
+    level: 0,
+    totalReferrals: 0,
     accountStatus: 'Active'
   });
 
   const router = useRouter();
   const user = useCurrentUser();
+  const supabase = createClient();
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
+      
       try {
-        const response = await fetch(`/api/user/${user.supabaseId}`);
-        if (!response.ok) throw new Error(t('fetchError'));
+        const { data, error } = await supabase
+          .from('users')
+          .select(`
+            email,
+            created_at,
+            referral_id,
+            level,
+            total_referrals
+          `)
+          .eq('id', user.supabaseId)
+          .single();
 
-        const data = await response.json();
+        if (error) throw error;
+
+        const formattedDate = data.created_at 
+          ? new Date(data.created_at).toLocaleDateString()
+          : 'N/A';
+
         setUserData({
           username: data.email.split('@')[0],
           email: data.email,
-          phone: data.phone || 'N/A',
-          memberSince: data.memberSince || 'N/A',
-          referralCode: data.referral_id,
+          phone: 'N/A',
+          memberSince: formattedDate,
+          referralCode: data.referral_id || 'N/A',
           level: data.level || 0,
           totalReferrals: data.total_referrals || 0,
-          accountStatus: data.account_status || 'Active'
+          accountStatus: 'Active'
         });
       } catch (err) {
         console.error(t('fetchError'), err);
@@ -59,7 +76,7 @@ const ProfilePage = () => {
     };
 
     fetchUserData();
-  }, [user, t]);
+  }, [user, t, supabase]);
 
   const profileActions = [
     { 
@@ -108,6 +125,7 @@ const ProfilePage = () => {
       alert(t('copied'));
     });
   };
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">

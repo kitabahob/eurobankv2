@@ -1,5 +1,4 @@
 import { supabase } from '../../../../lib/db';
-import { NextResponse } from 'next/server';
 
 const logout = async () => {
     const {error } = await supabase.auth.signOut()

@@ -3,15 +3,12 @@
 import { createClient } from '@/utils/supabase/client';
 import React, { useState, useEffect } from 'react';
 import { 
-  Award, 
   Clock, 
   CheckCircle, 
   XCircle, 
   Search,
   Wallet,
   Copy,
-  Plus,
-  Minus,
   Filter
 } from 'lucide-react';
 
@@ -98,7 +95,7 @@ function WalletList() {
     };
     
     fetchWalletList();
-  }, []);
+  });
 
   return (
     <div className="bg-gray-800 shadow-lg rounded-lg p-4 mb-4  border-l-4 border-blue-500 mt-8">

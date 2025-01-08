@@ -97,7 +97,9 @@
     "loginButton": "Login",
     "signupLink": "Don't have an account? Sign Up",
     "forgotPasswordLink": "Forgot Password?",
-    "loginSuccess": "Login successful!"
+    "loginSuccess": "Login successful!",
+    "loading":"Loading..."
+
   },
   "ForgotPasswordPage":{
     "title": "Forgot Password",

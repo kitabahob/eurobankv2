@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/db';
 import { useCurrentUser } from '@/lib/auth/useCurrentUser';
 import { Users, Copy, Gift, ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import BottomNav from '@/lib/components/BottomNav';
+import { createClient } from '@/utils/supabase/client';
 
 type Referral = {
   referee_id: string;
@@ -16,17 +16,17 @@ type Referral = {
 
 export default function Referrals() {
   const router = useRouter();
-  const pathname = usePathname();
-  const user = useCurrentUser();
+  const user: any = useCurrentUser();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const t = useTranslations('invite');
+  const t: any = useTranslations('invite');
   const [userData, setUserData] = useState({
     referral_id: 0
   });
+  const supabase =createClient();
 
   
   // Fetch user data from API
@@ -36,16 +36,19 @@ export default function Referrals() {
 
       setLoading(true);
       try {
-        const response = await fetch(`/api/user/${user.supabaseId}`);
-        if (!response.ok) throw new Error(t('fetchError'));
-
-        const userdata = await response.json();
-        setUserData({
-          referral_id: userdata.referral_id || 0
-        });
+        const { data, error } = await supabase
+          .from('users')
+          .select('referral_id')
+          .eq('id', user.supabaseId)
+          .single();
+  
+        if (error) throw error;
+  
+        if (data) {
+        setUserData({ referral_id: data.referral_id || null });        }
       } catch (err) {
-        console.error(t('fetchError'), err);
-        setError(t('loadError'));
+        console.error('Error fetching profit:', err);
+        setError(t('errors.fetchError'));
       } finally {
         setLoading(false);
       }
