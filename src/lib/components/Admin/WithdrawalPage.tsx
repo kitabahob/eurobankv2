@@ -219,18 +219,61 @@ const WithdrawalRequestCard = ({ request, onUpdateStatus }: {
 
 const WithdrawalsPage = () => {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
+  const supabase = createClient();
   const [filter, setFilter] = useState<'all' | 'pending' | 'delayed' | 'completed' | 'cancelled'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(() => {
-    // Get saved toggle state from localStorage
-    const savedState = localStorage.getItem('withdrawals-enabled');
-    return savedState ? JSON.parse(savedState) : false;
-  });
-  
+  const [isEnabled, setIsEnabled] = useState(false);
 
+  // Fetch the initial toggle state from Supabase
+  useEffect(() => {
+    const getSavedState = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('automatic')
+          .select('enabled')
+          .eq('id', 1)
+          .single();
+
+        if (error) {
+          console.error('Error fetching state:', error);
+          return;
+        }
+
+        setIsEnabled(data?.enabled ?? false);
+      } catch (err) {
+        console.error('Error fetching initial toggle state:', err);
+      }
+    };
+
+    getSavedState();
+  }, [supabase]);
+
+  const handleToggle = async () => {
+    const newState = !isEnabled;
+    setIsEnabled(newState);
+
+    try {
+      const { error } = await supabase
+        .from('automatic')
+        .update({ enabled: newState })
+        .eq('id', 1);
+
+      if (error) {
+        console.error('Error updating toggle state:', error);
+        alert('Failed to update the state. Please try again.');
+        setIsEnabled(!newState); // Revert state on failure
+      }
+    } catch (err) {
+      console.error('Error updating state:', err);
+      alert('An error occurred while updating the state.');
+      setIsEnabled(!newState); // Revert state on failure
+    }
+  };
+
+  // Fetch withdrawal requests
   useEffect(() => {
     const fetchWithdrawals = async () => {
       setLoading(true);
@@ -252,12 +295,6 @@ const WithdrawalsPage = () => {
 
     fetchWithdrawals();
   }, []);
-
-  const handleToggle = () => {
-    const newState = !isEnabled;
-    setIsEnabled(newState);
-    localStorage.setItem('withdrawals-enabled', JSON.stringify(newState));
-  };
 
   const updateRequestStatus = async (id: string, newStatus: 'completed' | 'delayed' | 'cancelled') => {
     try {
@@ -387,10 +424,10 @@ const WithdrawalsPage = () => {
               Showing: <span className="text-white font-semibold uppercase">{filter}</span>
             </div>
 
-             {/* Global Toggle Switch */}
-             <div className="mb-6 bg-gray-800 shadow-lg rounded-lg p-4 border-l-4 border-blue-500">
+            {/* Global Toggle Switch */}
+            <div className="mb-6 bg-gray-800 shadow-lg rounded-lg p-4 border-l-4 border-blue-500">
               <div className="flex items-center justify-between">
-                <span className="text-lg font-semibold text-white">Automatic  Processing</span>
+                <span className="text-lg font-semibold text-white">Automatic Processing</span>
                 <button
                   onClick={handleToggle}
                   className={`flex items-center px-3 py-1 rounded-full transition-colors duration-200 focus:outline-none ${
@@ -426,7 +463,7 @@ const WithdrawalsPage = () => {
               )}
             </div>
 
-            <WalletList/>
+            <WalletList />
           </>
         )}
       </div>

@@ -7,8 +7,8 @@ const WithdrawalSchema = z.object({
   user_id: z.string(),
   amount: z.number().positive(),
   address: z.string().regex(
-    /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
-    { message: "Invalid TRC20 USDT wallet address" }
+    /^0x[a-fA-F0-9]{40}$/,
+    { message: 'Invalid BSC USDT wallet address' }
   )
 });
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     // Check if withdrawal is allowed
     const { total_dp, amount_withdrawn, profit_balance, ref_profit } = user;
-    if (total_dp < (profit_balance - ref_profit)) {
+    if (profit_balance>15) {
       return NextResponse.json({ error: 'Withdrawal criteria not met' }, { status: 400 });
     }
 

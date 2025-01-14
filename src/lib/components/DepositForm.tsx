@@ -169,6 +169,7 @@ export default function DepositPage() {
         <h2 className="text-red">
           {t('disclaimer')} {/* Translation for disclaimer */}
         </h2>
+        <div className="m-[200px]"></div>
       </div>
 
       <BottomNav />

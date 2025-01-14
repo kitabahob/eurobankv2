@@ -330,8 +330,8 @@
                     "form": {
                       "amountLabel": "Withdrawal Amount",
                       "amountPlaceholder": "Enter amount",
-                      "walletLabel": "USDT TRC20 Wallet Address",
-                      "walletPlaceholder": "Enter TRC20 USDT wallet address",
+                      "walletLabel": "USDT  Smart Chain BEP Wallet Address",
+                      "walletPlaceholder": "Enter USDT  Smart Chain BEP20 wallet address",
                       "loading": "Loading...",
                       "submitButton": "Withdraw Funds"
                     },
@@ -339,7 +339,7 @@
                       "unauthenticated": "User not authenticated",
                       "invalidAmount": "Invalid withdrawal amount",
                       "exceedsBalance": "Amount is greater than total balance",
-                      "invalidWalletAddress": "Invalid USDT TRC20 wallet address",
+                      "invalidWalletAddress": "Invalid USDT BEP20 wallet address",
                       "unexpected": "An unexpected error occurred"
                     },
                     "success": {
@@ -401,7 +401,7 @@
                       "withdrawalRules": {
                         "title": "Withdrawal Rules",
                         "content": [
-                          "Minimum Withdrawal: $60",
+                          "Minimum Withdrawal: $15 ",
                           "Withdrawal Processing Time: 1-3 Business Days",
                           "Withdrawals are subject to verification"
                         ]

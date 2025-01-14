@@ -3,70 +3,81 @@ import { LogIn, Menu } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import {useRouter} from '@/i18n/routing'
+import { useRouter } from '@/i18n/routing';
+import './Navbar.css';
 
 export default function Navbar() {
   const t = useTranslations('landingPage');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router=useRouter()
+  const router = useRouter();
 
   const navigateToLogin = () => {
-    router.push('/auth/login')
+    router.push('/auth/login');
   };
 
   return (
-    
-    <nav className="fixed top-0 left-0 right-0 bg-secondary/30 backdrop-blur-md z-50">
-      <div className="container mx-auto flex justify-between items-center p-4">
-        <div className="flex items-center space-x-2">
-          {/* Logo for mobile (small screens) */}
-          <div className="md:hidden">
-            <Image src="/e.svg" alt="Logo" height={40} width={60} priority />
+    <nav className="navbar">
+      <div className="navbar-container">
+        <div className="logo-container">
+          {/* Logo for mobile */}
+          <div className="logo-mobile">
+            <Image 
+              src="/e.svg" 
+              alt="Logo" 
+              height={40} 
+              width={40}
+              className="logo-image"
+              priority 
+            />
           </div>
 
-          {/* Logo for desktop (large screens) */}
-          <div className="hidden md:block">
-            <Image src="/e.svg" alt="Logo" height={40} width={100} priority />
+          {/* Logo for desktop */}
+          <div className="logo-desktop">
+            <Image 
+              src="/e.svg" 
+              alt="Logo" 
+              height={40} 
+              width={40} 
+              priority 
+            />
           </div>
 
-          <h1 className="text-xl font-bold text-primary">EuroBank</h1>
+          <h1 className="brand-title">EuroBank</h1>
         </div>
-    {/* Desktop Navigation Links */}
-    <div className="hidden md:flex space-x-4 items-center">
-          <a href="#features" className="text-white hover:text-primary  transition-colors">
+
+        {/* Desktop Navigation Links */}
+        <div className="desktop-nav">
+          <a href="#features" className="nav-link">
             {t('nav.features')}
           </a>
-          <a href="#pricing" className="text-white hover:text-primary transition-colors">
+          <a href="#pricing" className="nav-link">
             {t('nav.pricing')}
           </a>
-          <a href="#apps" className="text-white hover:text-primary transition-colors">
+          <a href="#apps" className="nav-link">
             {t('nav.apps')}
           </a>
-          <a href="#faqs" className="text-white hover:text-primary transition-colors">
+          <a href="#faqs" className="nav-link">
             {t('nav.faqs')}
           </a>
         </div>
 
         {/* Desktop Signin Button and Language Switcher */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="desktop-actions">
           <button
-            className="flex items-center bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-md hover:bg-primary/90 transition-all group"
+            className="signin-button"
             onClick={navigateToLogin}
           >
-            <LogIn className="w-4  h-4 mr-2 group-hover:translate-x-1 transition-transform" />
+            <LogIn className="signin-icon" />
             {t('nav.signin')}
           </button>
           <LanguageSwitcher />
         </div>
 
-
-        
-
         {/* Mobile Menu Button */}
         <button
           type="button"
-          className="md:hidden inline-flex flex-col justify-center items-center w-8 h-8 text-muted-foreground"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="mobile-menu-button"
+          onClick={navigateToLogin}
           aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
@@ -75,30 +86,28 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'} bg-secondary/90 backdrop-blur-md`}
-      >
-        <div className="flex flex-col items-center space-y-4 py-6">
-          <a href="#features" className="text-white hover:text-primary transition-colors">
+      <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-menu-content">
+          <a href="#features" className="nav-link">
             {t('nav.features')}
           </a>
-          <a href="#pricing" className="text-foreground hover:text-primary transition-colors">
+          <a href="#pricing" className="nav-link">
             {t('nav.pricing')}
           </a>
-          <a href="#apps" className="text-foreground hover:text-primary transition-colors">
+          <a href="#apps" className="nav-link">
             {t('nav.apps')}
           </a>
-          <a href="#faqs" className="text-foreground hover:text-primary transition-colors">
+          <a href="#faqs" className="nav-link">
             {t('nav.faqs')}
           </a>
 
-          <div className="mt-4 flex flex-col items-center space-y-4">
+          <div className="mobile-actions">
             <button
               type="button"
-              className="flex items-center bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-md hover:bg-primary/90 transition-all group"
+              className="signin-button"
               onClick={navigateToLogin}
             >
-              <LogIn className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />
+              <LogIn className="signin-icon" />
               {t('nav.signin')}
             </button>
             <LanguageSwitcher />

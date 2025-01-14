@@ -124,6 +124,8 @@ const RulesSection: React.FC = () => {
             {t('disclaimer.content')}
           </p>
         </div>
+        <div style={{ height: '100px' }}></div>
+
       </div>
       
       {/* Bottom Navigation */}

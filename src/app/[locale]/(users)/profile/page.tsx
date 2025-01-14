@@ -1,27 +1,31 @@
-'use client'
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { logout } from '@/lib/auth/auth';
+import { signOut } from 'firebase/auth';
 import { useCurrentUser } from '@/lib/auth/useCurrentUser';
 import { createClient } from '@/utils/supabase/client';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  CreditCard, 
-  Shield, 
-  Settings, 
-  LogOut, 
+
+import {
+  User,
+  Mail,
+  Phone,
+  CreditCard,
+  LogOut,
   Copy,
   Star,
   Trophy,
-  Layers
+  Layers,
 } from 'lucide-react';
+
 import { useRouter } from '@/i18n/routing';
 import BottomNav from '@/lib/components/BottomNav';
+import { auth } from '@/firebase/config';
 
 const ProfilePage = () => {
   const t = useTranslations('ProfilePage');
+  const router = useRouter();
+
   const [userData, setUserData] = useState({
     username: '',
     email: '',
@@ -30,17 +34,16 @@ const ProfilePage = () => {
     referralCode: '',
     level: 0,
     totalReferrals: 0,
-    accountStatus: 'Active'
+    accountStatus: 'Active',
   });
 
-  const router = useRouter();
   const user = useCurrentUser();
   const supabase = createClient();
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
-      
+
       try {
         const { data, error } = await supabase
           .from('users')
@@ -56,7 +59,7 @@ const ProfilePage = () => {
 
         if (error) throw error;
 
-        const formattedDate = data.created_at 
+        const formattedDate = data.created_at
           ? new Date(data.created_at).toLocaleDateString()
           : 'N/A';
 
@@ -68,7 +71,7 @@ const ProfilePage = () => {
           referralCode: data.referral_id || 'N/A',
           level: data.level || 0,
           totalReferrals: data.total_referrals || 0,
-          accountStatus: 'Active'
+          accountStatus: 'Active',
         });
       } catch (err) {
         console.error(t('fetchError'), err);
@@ -78,76 +81,78 @@ const ProfilePage = () => {
     fetchUserData();
   }, [user, t, supabase]);
 
-  const profileActions = [
-    { 
-      icon: Shield, 
-      label: t('security'), 
-      color: 'text-blue-400',
-      action: () => router.push('/security')
-    },
-    { 
-      icon: Settings, 
-      label: t('settings'), 
-      color: 'text-green-400',
-      action: () => router.push('/settings')
-    },
-    { 
-      icon: LogOut, 
-      label: t('logout'), 
-      color: 'text-red-400',
-      action: () => logout()
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('User signed out successfully');
+      router.push('/auth/login'); // Redirect to login page
+    } catch (error) {
+      console.error('Error signing out:', error);
+      if (error instanceof Error) {
+        alert(t('logoutError', { error: error.message }));
+      } else {
+        alert(t('logoutError', { error: String(error) }));
+      }
     }
+  };
+
+  const profileActions = [
+    {
+      icon: LogOut,
+      label: t('logout'),
+      color: 'text-red-400',
+      action: handleLogout,
+    },
   ];
 
   const profileStats = [
-    { 
-      icon: Star, 
-      label: t('level'), 
+    {
+      icon: Star,
+      label: t('level'),
       value: userData.level,
-      color: 'text-yellow-400'
+      color: 'text-yellow-400',
     },
-    { 
-      icon: Trophy, 
-      label: t('referrals'), 
+    {
+      icon: Trophy,
+      label: t('referrals'),
       value: userData.totalReferrals,
-      color: 'text-blue-400'
+      color: 'text-blue-400',
     },
-    { 
-      icon: Layers, 
-      label: t('status'), 
+    {
+      icon: Layers,
+      label: t('status'),
       value: userData.accountStatus,
-      color: 'text-green-400'
-    }
+      color: 'text-green-400',
+    },
   ];
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text:string) => {
     navigator.clipboard.writeText(text).then(() => {
       alert(t('copied'));
     });
   };
-
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
         <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
           <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => router.back()} 
+            <button
+              onClick={() => router.back()}
               className="text-muted-foreground hover:text-primary"
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="m15 18-6-6 6-6"/>
+                <path d="m15 18-6-6 6-6" />
               </svg>
             </button>
             <h1 className="text-2xl text-primary font-bold">{t('profile')}</h1>
@@ -162,55 +167,9 @@ const ProfilePage = () => {
           <p className="text-muted-foreground">{t('memberSince', { date: userData.memberSince })}</p>
         </div>
 
-        <div className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 mb-8 border border-blue-700/50 space-y-4">
-          <h3 className="text-xl font-semibold text-primary mb-4">{t('contactInformation')}</h3>
-          {[
-            { 
-              icon: Mail, 
-              label: t('email'), 
-              value: userData.email,
-              color: 'text-blue-400'
-            },
-            { 
-              icon: Phone, 
-              label: t('phone'), 
-              value: userData.phone,
-              color: 'text-green-400'
-            },
-            { 
-              icon: CreditCard, 
-              label: t('referralCode'), 
-              value: userData.referralCode,
-              color: 'text-yellow-400',
-              copyable: true
-            }
-          ].map(({ icon: Icon, label, value, color, copyable }, index) => (
-            <div 
-              key={index} 
-              className="flex items-center justify-between bg-background/30 p-3 rounded-xl"
-            >
-              <div className="flex items-center space-x-4">
-                <div className={`${color} p-2 rounded-full bg-secondary`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{label}</p>
-                  <p className="font-medium text-primary">{value}</p>
-                </div>
-              </div>
-              {copyable && (
-                <Copy 
-                  className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-primary"
-                  onClick={() => copyToClipboard(value)}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
         <div className="grid grid-cols-3 gap-4 mb-8">
           {profileStats.map(({ icon: Icon, label, value, color }, index) => (
-            <div 
+            <div
               key={index}
               className="bg-blue-800/50 backdrop-blur-md rounded-2xl p-4 border border-blue-700/50 flex flex-col items-center"
             >
@@ -221,9 +180,9 @@ const ProfilePage = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {profileActions.map(({ icon: Icon, label, color, action }, index) => (
-            <div 
+            <div
               key={index}
               className="bg-accent-800/50 backdrop-blur-md rounded-2xl p-6 border border-blue-700/50 shadow-xl hover:bg-blue-700/50 transition-all cursor-pointer"
               onClick={action}
@@ -235,6 +194,8 @@ const ProfilePage = () => {
             </div>
           ))}
         </div>
+        <div style={{ height: '100px' }}></div>
+
       </div>
       <BottomNav />
     </div>

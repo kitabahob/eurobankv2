@@ -28,7 +28,7 @@ const SupportPage = () => {
       icon: MessageCircle, 
       label: t('channels.liveChat.label'), 
       color: 'text-green-400',
-      action: () => router.push('/comingsoon')
+      action: () => window.open(t('channels.telegram.link'), '_blank')
     },
     { 
       icon: HelpCircle, 
@@ -61,7 +61,7 @@ const SupportPage = () => {
         <div className="bg-secondary p-4 flex justify-between items-center mb-8 rounded-2xl">
           <div className="flex items-center space-x-4">
             <button 
-              onClick={() => router.push('/dashboard')} 
+              onClick={() => router.back()} 
               className="text-muted-foreground hover:text-primary"
             >
               <ArrowLeft className="w-6 h-6" />
@@ -124,6 +124,7 @@ const SupportPage = () => {
           <Send className="w-6 h-6" />
           <span>{t('channels.telegram.button')}</span>
         </div>
+        <div className="m-[100px]"></div>
       </div>
       <BottomNav/>
     </div>

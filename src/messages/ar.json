@@ -328,16 +328,18 @@
                   "form": {
                     "amountLabel": "مبلغ السحب",
                     "amountPlaceholder": "أدخل المبلغ",
-                    "walletLabel": "عنوان محفظة USDT TRC20",
-                    "walletPlaceholder": "أدخل عنوان محفظة TRC20 USDT",
+                    "walletPlaceholder": "أدخل عنوان محفظة USDT Smart Chain BEP20",
                     "loading": "جاري التحميل...",
-                    "submitButton": "سحب الأموال"
+                    "submitButton": "سحب الأموال",
+                    "walletLabel": "عنوان محفظة USDT Smart Chain BEP20"
+
+
                   },
                   "errors": {
                     "unauthenticated": "المستخدم غير مصدق",
                     "invalidAmount": "مبلغ السحب غير صالح",
                     "exceedsBalance": "المبلغ أكبر من الرصيد الإجمالي",
-                    "invalidWalletAddress": "عنوان محفظة USDT TRC20 غير صالح",
+                    "invalidWalletAddress": "عنوان محفظة USDT BSC غير صالح",
                     "unexpected": "حدث خطأ غير متوقع"
                   },
                   "success": {
@@ -398,7 +400,7 @@
       "withdrawalRules": {
         "title": "قواعد السحب",
         "content": [
-          "الحد الأدنى للسحب: 60 دولار",
+          "الحد الأدنى للسحب: 15 دولار",
           "وقت معالجة السحب: 1-3 أيام عمل",
           "تخضع عمليات السحب للتحقق"
         ]

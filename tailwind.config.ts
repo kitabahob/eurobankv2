@@ -33,6 +33,10 @@ export default {
         'crypto-gradient': 'var(--crypto-gradient)',
         'dark-gradient':'var(--crypto-gradient)'
       },
+      screens: {
+        'max-xs': {raw: '(max-width: 639px)'},
+        'min-xs': {raw: '(min-width: 640px)'},  
+      }
     },
   },
   plugins: [],

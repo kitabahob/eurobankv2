@@ -9,10 +9,11 @@ import BottomNav from '@/lib/components/BottomNav';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/utils/supabase/client';
 
+
 // Zod schema for TRC20 USDT wallet address validation
-const TRC20AddressSchema = z.string().regex(
-  /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
-  { message: 'Invalid TRC20 USDT wallet address' }
+const BSCUSDTAddressSchema = z.string().regex(
+  /^0x[a-fA-F0-9]{40}$/,
+  { message: 'Invalid BSC USDT wallet address' }
 );
 
 export default function WithdrawalForm() {
@@ -53,7 +54,7 @@ export default function WithdrawalForm() {
 
   const validateWalletAddress = (address: string) => {
     try {
-      TRC20AddressSchema.parse(address);
+      BSCUSDTAddressSchema.parse(address);
       return true;
     } catch {
       return false;
@@ -206,6 +207,8 @@ export default function WithdrawalForm() {
             <DollarSign className="w-6 h-6" />
             <span>{totalProfit === null ? t('form.loading') : t('form.submitButton')}</span>
           </button>
+            <div style={{ height: '100px' }}></div>
+
         </form>
       </div>
       <BottomNav />

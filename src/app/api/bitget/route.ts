@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { makeRequest } from "../../../utils/bitgetApi";
+import { makeRequest } from '../../../utils/bitgetApi';
 
 /**
  * Process withdrawal using Bitget API
  * @param walletAddress - Recipient's wallet address
  * @param amount - Amount to withdraw
  * @param coin - The coin to withdraw (default: 'USDT')
- * @param chain - Blockchain network (default: 'TRC20')
+ * @param chain - Blockchain network (default: 'BEP20')
  * @returns { transactionHash: string }
  */
-async function processWithdrawal(
+ async function processWithdrawal(
   walletAddress: string,
   amount: number,
   coin = 'USDT',
-  chain = 'TRC20'
+  chain = 'BEP20'
 ): Promise<{ transactionHash: string }> {
   try {
-    // Validate TRC20 wallet address
-    const trc20AddressRegex = /^T[a-zA-Z0-9]{33}$/;
-    if (!trc20AddressRegex.test(walletAddress)) {
-      throw new Error('Invalid TRC20 wallet address');
+    // Validate BEP20 wallet address
+    const bep20AddressRegex = /^0x[a-fA-F0-9]{40}$/;
+    if (!bep20AddressRegex.test(walletAddress)) {
+      throw new Error('Invalid BEP20 wallet address');
     }
 
     if (amount <= 0.1) {
@@ -54,11 +54,13 @@ async function processWithdrawal(
     };
   } catch (error) {
     console.error('Withdrawal error details:', {
-      error: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-      } : error,
+      error: error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+          }
+        : error,
       params: {
         walletAddress,
         amount,

@@ -9,12 +9,13 @@ import {
   CheckCircle, 
   Copy 
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function DepositInfo() {
   const t = useTranslations('DepositInfo'); // Accessing translations
   const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes in seconds
-  const depositAddress = 'TXrjUqgwhAoTk8JDj6UsR4RKb4sK3h9DP3'; // Example USDT TRC20 address
+  const depositAddress = 'TMaLDP1gPgiPVr8aoKm1YFLA56b8Dihgpj'; // Example USDT TRC20 address
 
   // Copy to clipboard function
   const copyToClipboard = (text: string) => {
@@ -116,9 +117,13 @@ export default function DepositInfo() {
               onClick={() => copyToClipboard(depositAddress)}
             />
           </div>
+          <Image src='/qr.jpeg' height={100} width={100} alt='QR Code'
+          className='mx-auto'/>
           <p className="text-sm text-muted-foreground text-center mt-4">
             {t('onlySendUsdt')}
           </p>
+
+
            {/* verify Deposit  */}
            <button
 

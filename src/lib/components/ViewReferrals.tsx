@@ -207,8 +207,11 @@ export default function Referrals() {
             </li>
           </ol>
         </div>
-      </div>
 
+        <div style={{ height: '100px' }}></div>
+
+      </div>
+          
       <BottomNav />
     </div>
   );
