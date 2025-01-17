@@ -330,7 +330,7 @@
                     "form": {
                       "amountLabel": "Withdrawal Amount",
                       "amountPlaceholder": "Enter amount",
-                      "walletLabel": "USDT  Smart Chain BEP Wallet Address",
+                      "walletLabel": "USDT  Smart Chain BEP 20 Wallet Address",
                       "walletPlaceholder": "Enter USDT  Smart Chain BEP20 wallet address",
                       "loading": "Loading...",
                       "submitButton": "Withdraw Funds"

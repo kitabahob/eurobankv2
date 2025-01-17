@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/db';
-import { headers } from 'next/headers';
 
 interface WithdrawalStatusInput {
   id: string;
@@ -53,11 +52,8 @@ export async function POST(request: Request) {
     if (status === 'completed') {
       try {
         // Process the actual withdrawal using the Bitget API
-    const headersList = await headers();
-    const host = headersList.get('host');
-    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
     
-    const response = await fetch(`${protocol}://${host}/api/bitget`, {
+    const response = await fetch(`https://bitgetapi.onrender.com/api/withdrawal`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -65,7 +61,6 @@ export async function POST(request: Request) {
         walletAddress: wallet_address,
       }),
     });
-    console.log(`${protocol}://${host}/api/bitget`)
 
   
         // Check if the response was successful

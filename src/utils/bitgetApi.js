@@ -47,7 +47,6 @@ export const makeRequest = async (method, endpoint, data = {}) => {
 
 
 
- // utils/bitgetApi.js
 export const getDepositRecords = async (params = {}) => {
   try {
     const endpoint = '/api/v2/spot/wallet/deposit-records';
