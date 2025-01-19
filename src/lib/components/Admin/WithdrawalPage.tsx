@@ -1,6 +1,7 @@
 'use client';
-
+import './Admin.css'
 import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/lib/db';
 import React, { useState, useEffect } from 'react';
 import { 
   Clock, 
@@ -130,20 +131,86 @@ const copyToClipboard = async (address: string) => {
   }
 };
 
-// Update WithdrawalRequestCard to remove toggle switch
+
+
+
 const WithdrawalRequestCard = ({ request, onUpdateStatus }: {
   request: WithdrawalRequest;
   onUpdateStatus: (id: string, newStatus: 'completed' | 'delayed' | 'cancelled') => void;
 }) => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showBalanceDialog, setShowBalanceDialog] = useState(false);  // Control dialog visibility
+  const [balanceChange, setBalanceChange] = useState<number>(0);  // New balance change
+  const [loading, setLoading] = useState(false);  // Loading state
+  const [userBalance, setUserBalance] = useState<number | null>(null); // Current user's balance
 
+  // Fetch the user's balance when the component mounts
+  useEffect(() => {
+    const fetchUserBalance = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('profit_balance')
+          .eq('id', request.user_id)
+          .single(); 
+
+        if (error) throw new Error(error.message);
+
+        setUserBalance(data?.profit_balance ?? 0);
+      } catch (err) {
+        setToast({ message: 'Failed to fetch user balance', type: 'error' });
+      }
+    };
+
+    fetchUserBalance();
+  }, [request.user_id]);
+
+  // Show toast message
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
   };
 
+  // Handle status update (Completed, Delayed, Cancelled)
   const initiateStatusUpdate = (status: 'completed' | 'delayed' | 'cancelled') => {
     onUpdateStatus(request.id, status);
     showToast(`Request ${status} successfully`);
+  };
+
+  // Handle balance update logic (Increase or Decrease)
+  const handleBalanceUpdate = async () => {
+    setLoading(true);
+    try {
+      if (balanceChange === 0) {
+        throw new Error('Balance change cannot be zero');
+      }
+
+      const newBalance = userBalance! + balanceChange; // Ensure userBalance is not null
+
+      const { error } = await supabase
+        .from('users')
+        .update({ profit_balance: newBalance })
+        .eq('id', request.user_id);
+
+      if (error) throw new Error(error.message);
+
+      setUserBalance(newBalance); // Update the local balance after successful update
+      showToast(`Balance updated successfully to ${newBalance.toLocaleString()}`, 'success');
+      setShowBalanceDialog(false);  // Close the dialog after successful update
+    } catch (err) {
+      if (err instanceof Error) {
+        showToast(err.message || 'Failed to update balance', 'error');
+      } else {
+        showToast('Failed to update balance', 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Copy wallet address to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    showToast('Address copied to clipboard', 'success');
   };
 
   return (
@@ -183,6 +250,12 @@ const WithdrawalRequestCard = ({ request, onUpdateStatus }: {
             <div className="flex items-center space-x-4">
               <div className="text-blue-400 font-bold text-xl">${request.amount.toLocaleString()}</div>
             </div>
+
+            {userBalance !== null && (
+              <div className="mt-2 text-gray-400">
+                <span className="font-semibold">Current Balance:</span> ${userBalance.toLocaleString()}
+              </div>
+            )}
           </div>
 
           {request.status === 'pending' && (
@@ -205,10 +278,49 @@ const WithdrawalRequestCard = ({ request, onUpdateStatus }: {
               >
                 <XCircle color='red' size={20} />
               </button>
+              <button 
+                onClick={() => setShowBalanceDialog(true)}  // Open balance update dialog
+                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition"
+              >
+                Update Balance
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Balance Update Dialog */}
+      <Dialog 
+        open={showBalanceDialog} 
+        onClose={() => setShowBalanceDialog(false)} 
+        title="Update Balance"
+        description="Enter the amount to increase or decrease the balance."
+      >
+        <div className="space-y-4">
+          <input
+            type="number"
+            value={balanceChange}
+            onChange={(e) => setBalanceChange(Number(e.target.value))}
+            className="w-full p-3 bg-gray-800 rounded-lg text-white border border-gray-700"
+            placeholder="Enter amount (positive or negative)"
+          />
+          <div className="flex space-x-4 justify-end">
+            <button
+              onClick={handleBalanceUpdate}
+              disabled={loading}
+              className="bg-green-600 text-white p-2 rounded-full disabled:bg-gray-600"
+            >
+              {loading ? 'Updating...' : 'Update Balance'}
+            </button>
+            <button
+              onClick={() => setShowBalanceDialog(false)}
+              className="bg-gray-600 text-white p-2 rounded-full"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Dialog>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
@@ -331,11 +443,8 @@ const WithdrawalsPage = () => {
   };
 
   const filteredRequests = requests.filter((request) => {
-    const matchesFilter = filter === 'all' || request.status === filter;
-    const matchesSearch =
-      (request.username?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (request.user_id?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesFilter = filter === 'all' || request.status === filter;   
+    return matchesFilter ;
   });
 
   const statusCounts = {
@@ -346,8 +455,10 @@ const WithdrawalsPage = () => {
     cancelled: requests.filter(r => r.status === 'cancelled').length,
   };
 
+
+
   return (
-    <div className="min-h-screen bg-gray-900 p-4 md:p-6">
+    <div className="min-h-screen  bg-gray-900 p-4 md:p-6">
       <div className="container mx-auto max-w-7xl">
         {loading ? (
           <div className="text-center text-gray-400">Loading...</div>
@@ -376,23 +487,22 @@ const WithdrawalsPage = () => {
               </div>
 
               {/* Status Filters - Desktop */}
-              <div className="hidden md:grid md:grid-cols-5 gap-2">
+              <div className="overflow-x-hidden">
+              <div className="status-grid">
                 {Object.entries(statusCounts).map(([status, count]) => (
-                  <button
-                    key={status}
-                    onClick={() => setFilter(status as typeof filter)}
-                    className={`
-                      p-3 rounded-lg text-center transition 
-                      ${filter === status 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}
-                    `}
-                  >
-                    <div className="text-xl font-bold">{count}</div>
-                    <div className="text-sm uppercase">{status}</div>
-                  </button>
+                <button
+                key={status}
+                onClick={() => setFilter(status as typeof filter)}
+                className={`status-button ${filter === status ? 'active' : ''}`}
+                >
+                <div className="status-count">{count}</div>
+                <div className="status-label">{status}</div>
+                </button>
                 ))}
+                </div>
               </div>
+               
+
 
               {/* Status Filters - Mobile */}
               {showFilters && (
@@ -472,3 +582,5 @@ const WithdrawalsPage = () => {
 };
 
 export default WithdrawalsPage;
+
+

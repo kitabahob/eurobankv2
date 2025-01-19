@@ -159,7 +159,13 @@ const EurobankDashboard = () => {
           </div>
           <div onClick={navigateToAnouncement} className="flex items-center space-x-4">
             <Search className="w-5 h-5 text-muted-foreground" />
+
+            <div className="relative">
             <Bell className="w-5 h-5 text-muted-foreground hover:text-blue-700/50" />
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-green"></span>
+
+            </div>
+           
           </div>
         </div>
 

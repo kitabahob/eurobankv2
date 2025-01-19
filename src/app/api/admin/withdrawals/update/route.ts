@@ -62,7 +62,8 @@ export async function POST(request: Request) {
       }),
     });
 
-  
+        console.log(response)
+
         // Check if the response was successful
         if (!response.ok) {
           throw new Error(`Failed to process withdrawal: ${response.statusText}`);
@@ -73,10 +74,11 @@ export async function POST(request: Request) {
 
         // Parse the JSON response to extract the transaction hash
         const data = await response.json();
-        const { transactionHash } = data;
+        let { transactionHash } = data;
+
 
         if (!transactionHash) {
-          throw new Error('Transaction hash not found in response');
+          transactionHash='null'
         }
 
         // Update the withdrawal queue to mark it as completed
@@ -107,6 +109,7 @@ export async function POST(request: Request) {
           console.error('Withdrawal list insert error:', listError);
           return NextResponse.json({ error: 'Failed to insert into withdrawal_list' }, { status: 500 });
         }
+        
 
       } catch (withdrawalError) {
         await rollback(withdrawalError);
