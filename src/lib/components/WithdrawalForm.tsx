@@ -72,7 +72,7 @@ export default function WithdrawalForm() {
       return;
     }
 
-    if (amount <= 0) {
+    if (amount < 15) {
       setError(t('errors.invalidAmount'));
       return;
     }
@@ -92,7 +92,7 @@ export default function WithdrawalForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          user_id: user, 
+          user_id: user.supabaseId, 
           amount, 
           address: walletAddress 
         }),

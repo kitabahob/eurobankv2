@@ -27,6 +27,7 @@ export default function DepositStatus() {
   const [error, setError] = useState<string | null>(null);
   const user = useCurrentUser();
   const navigateToDeposit = () => router.push('/deposit');
+  const userId= user?.supabaseId;
 
 
   const verifyDeposit = async (deposit: Deposit) => {
@@ -37,6 +38,7 @@ export default function DepositStatus() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          user:userId,
           depositId: deposit.id,
           walletAddress: deposit.wallet_address,
           amount: deposit.amount,

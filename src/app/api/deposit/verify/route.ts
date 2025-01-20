@@ -7,7 +7,7 @@ const USDT_CONTRACT_ADDRESS = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 
 export async function POST(request: Request) {
   try {
-    const { depositId, walletAddress, amount, createdAt, expiresAt } = await request.json();
+    const { user,depositId, walletAddress, amount, createdAt, expiresAt } = await request.json();
     console.log('Received request payload:', { depositId, walletAddress, amount, createdAt, expiresAt });
 
     if (!depositId || !walletAddress || !amount || !createdAt || !expiresAt) {
@@ -127,6 +127,35 @@ export async function POST(request: Request) {
             console.error('Database update error:', updateError);
             throw updateError;
           }
+          
+          const {data:userdata,error:userError} = await supabase 
+          .from ('users')
+          .select('*')
+          .eq('id',user)
+          .single()
+
+          if (userError){
+            console.error('user data fetch error ')
+          }
+
+          const {balance}=userdata; 
+          const newBalance =balance + amount;
+
+
+          const {error:updateUserError} = await supabase
+          .from ('users')
+          .update({
+            balance:newBalance
+          })
+          .eq('id',user)
+
+          if (updateUserError){
+            console.error('update user error ')
+            throw updateUserError;
+          }
+
+
+          
 
           console.log('Deposit verified and updated successfully');
           break;

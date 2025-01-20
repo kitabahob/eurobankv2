@@ -31,26 +31,24 @@ export async function POST(request: Request) {
 
     // Check if withdrawal is allowed
     const { total_dp, amount_withdrawn, profit_balance, ref_profit } = user;
-    if (profit_balance>15) {
+    if (profit_balance<amount || amount<15) {
       return NextResponse.json({ error: 'Withdrawal criteria not met' }, { status: 400 });
     }
 
     // Check for existing pending withdrawal requests
     const { data: pendingRequest, error: pendingError } = await supabase
       .from('withdrawal_queue')
-      .select('id')
+      .select('*')
       .eq('user_id', user_id)
       .eq('status', 'pending')
       .single();
 
-    if (pendingError) {
+    if (pendingRequest) {
       console.error('Error checking pending withdrawals:', pendingError);
-      return NextResponse.json({ error: 'You have pending withdrawal requests' }, { status: 500 });
+      return NextResponse.json({ error: 'You have a previous pending withdrawal requests' }, { status: 500 });
     }
 
-    if (pendingRequest) {
-      return NextResponse.json({ error: 'You have a previous pending request' }, { status: 400 });
-    }
+   
 
     // Update user table with new withdrawal
     const newAmountWithdrawn = amount_withdrawn + amount;
