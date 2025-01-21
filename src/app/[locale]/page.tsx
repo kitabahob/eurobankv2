@@ -43,8 +43,8 @@ const EuroBankLandingPage = () => {
   const pricingPlans = [
     {
       level: 'VIP 1',
-      minInvestment: 60,
-      monthlyReturn: 30,
+      minInvestment: 50,
+      monthlyReturn: 25,
       features: [
         t('pricing.vip1.feature1'),
         t('pricing.vip1.feature2')

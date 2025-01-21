@@ -13,7 +13,7 @@ interface LevelInfo {
 }
 
 const levels: LevelInfo[] = [
-  { level: 1, dailyProfit: "$1.20", deposit: "$60" },
+  { level: 1, dailyProfit: "$1", deposit: "$50" },
   { level: 2, dailyProfit: "$2.00", deposit: "$100" },
   { level: 3, dailyProfit: "$4.00", deposit: "$200" },
   { level: 4, dailyProfit: "$8.00", deposit: "$400" },

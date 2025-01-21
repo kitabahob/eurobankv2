@@ -16,7 +16,7 @@ export default function DepositPage() {
   const user = useCurrentUser();
   
   const depositLevels = [
-    { label: 'Level 1: $60', value: 60, dailyProfit: 1.2 },
+    { label: 'Level 1: $50', value: 50, dailyProfit: 1 },
     { label: 'Level 2: $100', value: 100, dailyProfit: 2 },
     { label: 'Level 3: $200', value: 200, dailyProfit: 4 },
     { label: 'Level 4: $400', value: 400, dailyProfit: 8 },
