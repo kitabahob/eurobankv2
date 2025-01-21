@@ -374,7 +374,7 @@
                       "investmentLimits": {
                         "title": "Investment Limits",
                         "content": [
-                          "Minimum Investment: $60",
+                          "Minimum Investment: $50",
                           "Maximum Investment: $15,000 per transaction",
                           "Daily Profit Limit: $300",
                           "Monthly Investment Limit: $9,300"
