@@ -162,7 +162,7 @@ const EurobankDashboard = () => {
 
             <div className="relative">
             <Bell className="w-5 h-5 text-muted-foreground hover:text-blue-700/50" />
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-green"></span>
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-green"></span>
 
             </div>
            
