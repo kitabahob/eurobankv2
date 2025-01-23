@@ -28,10 +28,13 @@ export default function DepositStatus() {
   const user = useCurrentUser();
   const navigateToDeposit = () => router.push('/deposit');
   const userId= user?.supabaseId;
+  const [verifyingDepositId, setVerifyingDepositId] = useState<number | null>(null);
+
 
 
   const verifyDeposit = async (deposit: Deposit) => {
     try {
+      setVerifyingDepositId(deposit.id);
       const response = await fetch('/api/deposit/verify', {
         method: 'POST',
         headers: {
@@ -64,6 +67,8 @@ export default function DepositStatus() {
     } catch (error) {
       console.error('Error verifying deposit:', error);
       alert('Failed to verify deposit');
+    }finally{
+      setVerifyingDepositId(null);
     }
   };
 
@@ -213,6 +218,7 @@ export default function DepositStatus() {
                   {(deposit.status === 'pending' || deposit.status === 'expired') && (
                     <button
                       onClick={() => verifyDeposit(deposit)}
+                      disabled={verifyingDepositId===deposit.id}
                       className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl flex items-center justify-center space-x-2"
                     >
                       <AlertCircle className="w-5 h-5" />
