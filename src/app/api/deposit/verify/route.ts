@@ -138,6 +138,8 @@ export async function POST(request: Request) {
             console.error('user data fetch error ')
           }
 
+          console.log(userdata)
+
           const {balance}=userdata; 
           const newBalance =balance + amount;
 
