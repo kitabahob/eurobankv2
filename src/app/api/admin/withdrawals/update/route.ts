@@ -24,17 +24,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reason required for delayed or canceled status' }, { status: 400 });
     }
 
-    // Prepare rollback function
+    // Get the current status before updating
+    const { data: currentWithdrawal, error: fetchError } = await supabase
+      .from('withdrawal_queue')
+      .select('status')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Failed to fetch current withdrawal status:', fetchError);
+      return NextResponse.json({ error: 'Failed to fetch withdrawal status' }, { status: 500 });
+    }
+
+    const originalStatus = currentWithdrawal?.status || 'pending';
+
+    // Prepare rollback function with original status
     const rollback = async (error: any) => {
       console.error('Operation failed, attempting rollback:', error);
       try {
-        // Attempt to revert the withdrawal queue status if possible
-        await supabase
+        const { error: rollbackError } = await supabase
           .from('withdrawal_queue')
-          .update({ status: 'pending' }) // Or previous status
+          .update({ 
+            status: originalStatus,
+            reason: `Rolled back to ${originalStatus} due to error: ${error.message}`
+          })
           .eq('id', id);
+
+        if (rollbackError) {
+          console.error('Rollback failed:', rollbackError);
+          throw rollbackError;
+        }
+        console.log(`Successfully rolled back withdrawal ${id} to status: ${originalStatus}`);
       } catch (rollbackError) {
-        console.error('Rollback failed:', rollbackError);
+        console.error('Critical: Rollback failed:', rollbackError);
+        throw new Error(`Critical: Both operation and rollback failed. Manual intervention required for withdrawal ${id}`);
       }
     };
 
@@ -45,51 +68,40 @@ export async function POST(request: Request) {
       .eq('id', id);
 
     if (updateError) {
-      console.error('Withdrawal update error:', updateError);
+      await rollback(updateError);
       return NextResponse.json({ error: 'Failed to update withdrawal' }, { status: 500 });
     }
 
     if (status === 'completed') {
       try {
-        // Process the actual withdrawal using the Bitget API
-    
-    const response = await fetch(`https://bitgetapi.onrender.com/api/withdrawal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount,
-        walletAddress: wallet_address,
-      }),
-    });
+        // Process the withdrawal using the Bitget API
+        const response = await fetch(`https://bitgetapi.onrender.com/api/withdrawal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount,
+            walletAddress: wallet_address,
+          }),
+        });
 
-        console.log(response)
-
-        // Check if the response was successful
         if (!response.ok) {
           throw new Error(`Failed to process withdrawal: ${response.statusText}`);
         }
-        
 
-        
-
-        // Parse the JSON response to extract the transaction hash
         const data = await response.json();
-        let { transactionHash } = data;
-
-
-        if (!transactionHash) {
-          transactionHash='null'
-        }
+        const transactionHash = data.transactionHash || 'null';
 
         // Update the withdrawal queue to mark it as completed
         const { error: statusUpdateError } = await supabase
           .from('withdrawal_queue')
-          .update({ status: 'completed' })
+          .update({ 
+            status: 'completed',
+            reason: transactionHash !== 'null' ? `Transaction completed: ${transactionHash}` : undefined
+          })
           .eq('id', id);
 
         if (statusUpdateError) {
           await rollback(statusUpdateError);
-          console.error('Status update error:', statusUpdateError);
           return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
         }
 
@@ -100,20 +112,17 @@ export async function POST(request: Request) {
             user_id: userId,
             withdrawal_id: id,
             amount,
-            transaction_hash: transactionHash, // Now using the transactionHash
+            transaction_hash: transactionHash,
             wallet_address,
           });
 
         if (listError) {
           await rollback(listError);
-          console.error('Withdrawal list insert error:', listError);
           return NextResponse.json({ error: 'Failed to insert into withdrawal_list' }, { status: 500 });
         }
-        
 
       } catch (withdrawalError) {
         await rollback(withdrawalError);
-        console.error('Withdrawal processing error:', withdrawalError);
         return NextResponse.json(
           {
             error: 'Failed to process withdrawal through Bitget',
