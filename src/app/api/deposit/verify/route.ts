@@ -142,6 +142,8 @@ export async function POST(request: Request) {
 
           const {balance}=userdata; 
           const newBalance =balance + amount;
+          const Dp= amount *0.02;
+
 
 
           const {error:updateUserError} = await supabase
@@ -154,6 +156,18 @@ export async function POST(request: Request) {
           if (updateUserError){
             console.error('update user error ')
             throw updateUserError;
+          }
+
+          const {error:updateTotal_dpError} = await supabase
+          .from ('users')
+          .update({
+            total_dp:userdata.total_dp + Dp
+          })
+          .eq('id',user)
+
+          if (updateTotal_dpError){
+            console.error('update total dp error ')
+            throw updateTotal_dpError;
           }
 
 

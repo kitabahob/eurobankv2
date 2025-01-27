@@ -54,12 +54,8 @@ const EurobankDashboard = () => {
   
         if (error) throw error;
   
-        let defaultbalance;
-        if (data.profit_balance === 0) {
-          defaultbalance = data.total_profit;
-        } else {
-          defaultbalance = data.profit_balance;
-        }
+        const defaultbalance = data.profit_balance;
+      
   
         setUserData({
           dailyEarning: data.daily_profit || 0,
