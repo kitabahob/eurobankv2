@@ -24,19 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reason required for delayed or canceled status' }, { status: 400 });
     }
 
-    // Get the current status before updating
-    const { data: currentWithdrawal, error: fetchError } = await supabase
-      .from('withdrawal_queue')
-      .select('status')
-      .eq('id', id)
-      .single();
-
-    if (fetchError) {
-      console.error('Failed to fetch current withdrawal status:', fetchError);
-      return NextResponse.json({ error: 'Failed to fetch withdrawal status' }, { status: 500 });
-    }
-
-    const originalStatus = currentWithdrawal?.status || 'pending';
+    
 
     // Prepare rollback function with original status
     const rollback = async (error: any) => {
@@ -45,8 +33,8 @@ export async function POST(request: Request) {
         const { error: rollbackError } = await supabase
           .from('withdrawal_queue')
           .update({ 
-            status: originalStatus,
-            reason: `Rolled back to ${originalStatus} due to error: ${error.message}`
+            status: 'pending',
+            reason: `Rolled back to pending due to error: ${error.message}`
           })
           .eq('id', id);
 
@@ -54,29 +42,19 @@ export async function POST(request: Request) {
           console.error('Rollback failed:', rollbackError);
           throw rollbackError;
         }
-        console.log(`Successfully rolled back withdrawal ${id} to status: ${originalStatus}`);
+        console.log(`Successfully rolled back withdrawal ${id} to status: pending`);
       } catch (rollbackError) {
         console.error('Critical: Rollback failed:', rollbackError);
         throw new Error(`Critical: Both operation and rollback failed. Manual intervention required for withdrawal ${id}`);
       }
     };
 
-    // Update withdrawal status
-    const { error: updateError } = await supabase
-      .from('withdrawal_queue')
-      .update({ status, reason })
-      .eq('id', id);
-
-    if (updateError) {
-      await rollback(updateError);
-      return NextResponse.json({ error: 'Failed to update withdrawal' }, { status: 500 });
-    }
-
+   
     if (status === 'completed') {
       try {
         // Process the withdrawal using the Bitget API
         // https://eurobankv2.vercel.app/api/bitget
-        const response = await fetch(`http://localhost:3001/api/bitget`, {
+        const response = await fetch(`https://eurobankv2.vercel.app/api/bitget`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -114,7 +92,7 @@ export async function POST(request: Request) {
             user_id: userId,
             withdrawal_id: id,
             amount,
-            transaction_hash: transactionHash,
+            transaction_hash:  'null',
             wallet_address,
           });
 
