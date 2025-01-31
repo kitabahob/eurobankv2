@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       try {
         // Process the withdrawal using the Bitget API
         // https://eurobankv2.vercel.app/api/bitget
-        const response = await fetch(`https://eurobankv2.vercel.app/api/bitget`, {
+        const response = await fetch(`http://localhost:3001/api/bitget`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -84,7 +84,8 @@ export async function POST(request: Request) {
             walletAddress: wallet_address,
           }),
         });
-
+         
+        console.log(`Api response: ${response}`);
         if (!response.ok) {
           throw new Error(`Failed to process withdrawal: ${response.statusText}`);
         }

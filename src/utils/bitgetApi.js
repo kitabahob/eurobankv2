@@ -1,11 +1,12 @@
 import axios from 'axios';
 import crypto from 'crypto';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const API_KEY = process.env.BITGET_API_KEY;
 const SECRET_KEY = process.env.BITGET_SECRET_KEY;
 const PASSPHRASE = process.env.BITGET_PASSPHRASE;
 const BASE_URL = 'https://api.bitget.com';
-const FIXIE_PROXY = process.env.FIXIE_PROXY;
+const FIXIE_PROXY = 'http://fixie:1xRr9W89mBEYLGO@criterium.usefixie.com:80';
 
 const getTimestamp = () => new Date().toISOString();
 
@@ -32,18 +33,26 @@ export const makeRequest = async (method, endpoint, data = {}) => {
     'ACCESS-PASSPHRASE': PASSPHRASE,
   };
 
+  // Create a new instance of HttpsProxyAgent for each request
+  const proxyAgent = new HttpsProxyAgent(FIXIE_PROXY);
+
   try {
-    const response = await axios({
+    const axiosConfig = {
       method,
       url: `${BASE_URL}${endpoint}`,
-      data: method === 'GET' ? null : data,
       headers,
-      proxy: false,  // Disable default proxy behavior
-      httpsAgent: new (require("https").Agent)({ 
-        proxy: FIXIE_PROXY
-      })
-    });
+      httpsAgent: proxyAgent,
+    };
 
+    // Add data or params based on the method
+    if (method === 'GET') {
+      axiosConfig.params = data;
+    } else {
+      axiosConfig.data = data;
+    }
+
+    const response = await axios(axiosConfig);
+    console.log('utils/bitget API response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error in API call:', error.response?.data || error.message);
@@ -51,13 +60,11 @@ export const makeRequest = async (method, endpoint, data = {}) => {
   }
 };
 
-
-
 export const getDepositRecords = async (params = {}) => {
   try {
     const endpoint = '/api/v2/spot/wallet/deposit-records';
     const queryParams = {
-      startTime: params.startTime || Date.now() - (30 * 24 * 60 * 60 * 1000), // Last 30 days by default
+      startTime: params.startTime || Date.now() - (30 * 24 * 60 * 60 * 1000),
       endTime: params.endTime || Date.now(),
       coin: params.coin || undefined,
       limit: params.limit || 50,
