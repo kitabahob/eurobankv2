@@ -1,10 +1,11 @@
 import axios from 'axios';
 import crypto from 'crypto';
 
-const API_KEY = process.env.BITGET_API_KEY; // Use environment variables for security
+const API_KEY = process.env.BITGET_API_KEY;
 const SECRET_KEY = process.env.BITGET_SECRET_KEY;
 const PASSPHRASE = process.env.BITGET_PASSPHRASE;
 const BASE_URL = 'https://api.bitget.com';
+const FIXIE_PROXY = process.env.FIXIE_PROXY;
 
 const getTimestamp = () => new Date().toISOString();
 
@@ -37,7 +38,12 @@ export const makeRequest = async (method, endpoint, data = {}) => {
       url: `${BASE_URL}${endpoint}`,
       data: method === 'GET' ? null : data,
       headers,
+      proxy: false,  // Disable default proxy behavior
+      httpsAgent: new (require("https").Agent)({ 
+        proxy: FIXIE_PROXY
+      })
     });
+
     return response.data;
   } catch (error) {
     console.error('Error in API call:', error.response?.data || error.message);

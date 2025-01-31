@@ -75,7 +75,8 @@ export async function POST(request: Request) {
     if (status === 'completed') {
       try {
         // Process the withdrawal using the Bitget API
-        const response = await fetch(`https://bitgetapi.onrender.com/api/withdrawal`, {
+        // https://eurobankv2.vercel.app/api/bitget
+        const response = await fetch(`https://eurobankv2.vercel.app/api/bitget`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
