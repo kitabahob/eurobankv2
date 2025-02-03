@@ -258,7 +258,7 @@ const WithdrawalRequestCard = ({ request, onUpdateStatus }: {
             )}
           </div>
 
-          {request.status === 'pending' && (
+          {request.status !='completed' && (
             <div className="flex space-x-2 w-full md:w-auto justify-end">
               <button 
                 onClick={() => initiateStatusUpdate('completed')}

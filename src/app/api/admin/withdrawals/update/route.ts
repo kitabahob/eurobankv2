@@ -24,7 +24,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reason required for delayed or canceled status' }, { status: 400 });
     }
 
-    
+
+  
 
     // Prepare rollback function with original status
     const rollback = async (error: any) => {
@@ -49,6 +50,37 @@ export async function POST(request: Request) {
       }
     };
 
+
+
+    if (status === 'delayed'){
+      const { error } = await supabase
+        .from('withdrawal_queue')
+        .update({ 
+          status: 'delayed',
+          reason: reason
+        })
+        .eq('id', id);
+
+      if (error) {
+        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+      }
+
+      return NextResponse.json({ message: 'Withdrawal status updated successfully' });
+    }else if (status === 'canceled'){
+      const { error } = await supabase
+        .from('withdrawal_queue')
+        .update({ 
+          status: 'canceled',
+          reason: reason
+        })
+        .eq('id', id);
+
+      if (error) {
+        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+      }
+
+      return NextResponse.json({ message: 'Withdrawal status updated successfully' });
+    }else   
    
     if (status === 'completed') {
       try {
