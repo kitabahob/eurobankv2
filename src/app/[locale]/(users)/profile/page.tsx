@@ -52,7 +52,7 @@ const ProfilePage = () => {
             created_at,
             referral_id,
             level,
-            total_referrals
+            refferal_number
           `)
           .eq('id', user.supabaseId)
           .single();
@@ -70,7 +70,7 @@ const ProfilePage = () => {
           memberSince: formattedDate,
           referralCode: data.referral_id || 'N/A',
           level: data.level || 0,
-          totalReferrals: data.total_referrals || 0,
+          totalReferrals: data.refferal_number || 0,
           accountStatus: 'Active',
         });
       } catch (err) {

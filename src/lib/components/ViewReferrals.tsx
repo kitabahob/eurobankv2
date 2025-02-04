@@ -24,7 +24,7 @@ export default function Referrals() {
   const [error, setError] = useState<string | null>(null);
   const t: any = useTranslations('invite');
   const [userData, setUserData] = useState({
-    referral_id: 0
+    referral_id: 0,refferal_number:0
   });
   const supabase =createClient();
 
@@ -38,14 +38,14 @@ export default function Referrals() {
       try {
         const { data, error } = await supabase
           .from('users')
-          .select('referral_id')
+          .select('referral_id,refferal_number')
           .eq('id', user.supabaseId)
           .single();
   
         if (error) throw error;
   
         if (data) {
-        setUserData({ referral_id: data.referral_id || null });        }
+        setUserData({ referral_id: data.referral_id || null, refferal_number:data.refferal_number });        }
       } catch (err) {
         console.error('Error fetching profit:', err);
         setError(t('errors.fetchError'));
@@ -76,7 +76,7 @@ export default function Referrals() {
 
         if (data) {
           setReferrals(data);
-          setTotalReferrals(data.length);
+          setTotalReferrals(user.refferal_number);
         }
       } catch (error) {
         console.error('Unexpected error fetching referrals:', error);
