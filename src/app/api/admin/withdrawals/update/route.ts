@@ -17,38 +17,12 @@ export async function POST(request: Request) {
     // Input validation
     if (!id || !status || !userId || amount <= 0 || !wallet_address) {
       return NextResponse.json({ error: 'Invalid input parameters' }, { status: 400 });
-    }
-
-
-
-  
-
-    // Prepare rollback function with original status
-    const rollback = async (error: any) => {
-      console.error('Operation failed, attempting rollback:', error);
-      try {
-        const { error: rollbackError } = await supabase
-          .from('withdrawal_queue')
-          .update({ 
-            status: 'pending',
-            reason: `Rolled back to pending due to error: ${error.message}`
-          })
-          .eq('id', id);
-
-        if (rollbackError) {
-          console.error('Rollback failed:', rollbackError);
-          throw rollbackError;
-        }
-        console.log(`Successfully rolled back withdrawal ${id} to status: pending`);
-      } catch (rollbackError) {
-        console.error('Critical: Rollback failed:', rollbackError);
-        throw new Error(`Critical: Both operation and rollback failed. Manual intervention required for withdrawal ${id}`);
-      }
-    };
+    } 
 
 
 
     if (status === 'delayed'){
+      
       const { error } = await supabase
         .from('withdrawal_queue')
         .update({ 
@@ -63,7 +37,8 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ message: 'Withdrawal status updated successfully' });
     
-    }else if (status === 'canceled'){
+    }
+    else if (status === 'canceled'){
       const { error } = await supabase
         .from('withdrawal_queue')
         .update({ 
@@ -110,7 +85,6 @@ export async function POST(request: Request) {
           .eq('id', id);
 
         if (statusUpdateError) {
-          await rollback(statusUpdateError);
           return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
         }
 
@@ -126,12 +100,10 @@ export async function POST(request: Request) {
           });
 
         if (listError) {
-          await rollback(listError);
           return NextResponse.json({ error: 'Failed to insert into withdrawal_list' }, { status: 500 });
         }
 
       } catch (withdrawalError) {
-        await rollback(withdrawalError);
         return NextResponse.json(
           {
             error: 'Failed to process withdrawal through Bitget',
