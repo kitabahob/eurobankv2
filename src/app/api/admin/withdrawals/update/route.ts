@@ -39,6 +39,34 @@ export async function POST(request: Request) {
       }
     };
 
+
+    const updateCancel = async (userId: string) => {
+      const {data, error:userDetailsError } = await supabase
+        .from('users')
+        .select('profit_balance')
+        .eq('id',userId)
+        .single()
+
+      if (userDetailsError) {
+        throw new Error(`Failed to update status to ${userId}`);
+      }
+
+      const {profit_balance}= data;
+
+      const {error :balaceUpdateError} = await supabase
+      .from ('users')
+      .update (
+        {
+          profit_balance:profit_balance+amount
+        }
+      )
+      .eq('id',userId)
+
+      if (balaceUpdateError) {
+        throw new Error(`Failed to update balance}`);
+      }
+    };
+
     switch (status) {
       case 'delayed':
         await updateWithdrawalStatus('delayed', reason);
@@ -46,6 +74,7 @@ export async function POST(request: Request) {
 
       case 'cancelled':
         await updateWithdrawalStatus('cancelled', reason || null);
+        await updateCancel(userId)
         break;
 
       case 'completed':
