@@ -77,7 +77,7 @@ const AdminDashboard: React.FC = () => {
       }}
     >
       <item.icon className="w-5 h-5 md:mr-3" />
-      <span className="hidden md:inline">{item.label}</span>New
+      <span className="hidden md:inline">{item.label}</span>
     </button>
   );
 
