@@ -22,8 +22,10 @@ export async function POST(request: Request) {
 
 
     if (status === 'delayed'){
-      
-      const { error } = await supabase
+      try{
+        
+
+        const { error:delayError } = await supabase
         .from('withdrawal_queue')
         .update({ 
           status: 'delayed',
@@ -31,14 +33,23 @@ export async function POST(request: Request) {
         })
         .eq('id', id);
 
-      if (error) {
+      if (delayError) {
         return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
       }
 
       return NextResponse.json({ message: 'Withdrawal status updated successfully' });
     
-    }
-    else if (status === 'canceled'){
+      }catch (delayError) {
+        return NextResponse.json(
+          {
+            error: 'Failed to update to delay',
+            details: (delayError as Error).message,
+          },
+          { status: 500 }
+        );
+      }
+    
+    }else if (status === 'canceled'){
       const { error } = await supabase
         .from('withdrawal_queue')
         .update({ 
@@ -52,9 +63,10 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ message: 'Withdrawal status updated successfully' });
-    }else   
-   
-    if (status === 'completed') {
+    }else  {  
+
+
+
       try {
         // Process the withdrawal using the Bitget API
         // https://eurobankv2.vercel.app/api/bitget
