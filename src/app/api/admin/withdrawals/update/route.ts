@@ -3,7 +3,7 @@ import { supabase } from '@/lib/db';
 
 interface WithdrawalStatusInput {
   id: string;
-  status: 'pending' | 'delayed' | 'canceled' | 'completed';
+  status:string;
   reason?: string;
   userId: string;
   amount: number;
@@ -14,116 +14,100 @@ export async function POST(request: Request) {
   try {
     const { id, status, reason, userId, amount, wallet_address } = await request.json() as WithdrawalStatusInput;
 
-    // Input validation
-    if (!id || !status || !userId || amount <= 0 || !wallet_address) {
+    console.log(status);
+    // Enhanced input validation
+    if (!id || !status || !userId ) {
       return NextResponse.json({ error: 'Invalid input parameters' }, { status: 400 });
-    } 
+    }
 
+    // Validate status
+    const validStatuses: WithdrawalStatusInput['status'][] = ['pending', 'delayed', 'cancelled', 'completed'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ error: 'Invalid withdrawal status' }, { status: 400 });
+    }
 
-
-    if (status === 'delayed'){
-      try{
-        
-
-        const { error:delayError } = await supabase
-        .from('withdrawal_queue')
-        .update({ 
-          status: 'delayed',
-          reason: reason
-        })
-        .eq('id', id);
-
-      if (delayError) {
-        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
-      }
-
-      return NextResponse.json({ message: 'Withdrawal status updated successfully' });
-    
-      }catch (delayError) {
-        return NextResponse.json(
-          {
-            error: 'Failed to update to delay',
-            details: (delayError as Error).message,
-          },
-          { status: 500 }
-        );
-      }
-    
-    }else if (status === 'canceled'){
+    const updateWithdrawalStatus = async (newStatus: string, updateReason?: string | null) => {
       const { error } = await supabase
         .from('withdrawal_queue')
         .update({ 
-          status: 'canceled',
-          reason: reason || null
+          status: newStatus
         })
         .eq('id', id);
 
       if (error) {
-        return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
+        throw new Error(`Failed to update status to ${newStatus}`);
       }
+    };
 
-      return NextResponse.json({ message: 'Withdrawal status updated successfully' });
-    }else  {  
+    switch (status) {
+      case 'delayed':
+        await updateWithdrawalStatus('delayed', reason);
+        break;
 
+      case 'cancelled':
+        await updateWithdrawalStatus('cancelled', reason || null);
+        break;
 
+      case 'completed':
+        try {
+          // Process withdrawal using Bitget API
+          const response = await fetch(`https://eurobankv2.vercel.app/api/bitget`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount,
+              walletAddress: wallet_address,
+            }),
+          });
+           
+          if (!response.ok) {
+            throw new Error(`Bitget API error: ${response.statusText}`);
+          }
 
-      try {
-        // Process the withdrawal using the Bitget API
-        // https://eurobankv2.vercel.app/api/bitget
-        const response = await fetch(`https://eurobankv2.vercel.app/api/bitget`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount,
-            walletAddress: wallet_address,
-          }),
-        });
-         
-        console.log(`Api response: ${response}`);
-        if (!response.ok) {
-          throw new Error(`Failed to process withdrawal: ${response.statusText}`);
-        }
+          const data = await response.json();
+          const transactionHash = data.transactionHash || null;
 
-        const data = await response.json();
-        const transactionHash = data.transactionHash || 'null';
-
-        // Update the withdrawal queue to mark it as completed
-        const { error: statusUpdateError } = await supabase
+          const { error: transactionError } = await supabase
           .from('withdrawal_queue')
           .update({ 
-            status: 'completed',
-            reason: transactionHash !== 'null' ? `Transaction completed: ${transactionHash}` : undefined
+            status: 'completed'
           })
           .eq('id', id);
 
-        if (statusUpdateError) {
-          return NextResponse.json({ error: 'Failed to update status' }, { status: 500 });
-        }
+          if (transactionError) {
+            throw new Error(`Transaction failed: ${transactionError.message}`);
+          }
 
-        // Add the withdrawal to the withdrawal_list table
-        const { error: listError } = await supabase
+          // update withdrawal list
+          
+          const { error: listInsertError } = await supabase
           .from('withdrawal_list')
-          .insert({
-            user_id: userId,
-            withdrawal_id: id,
-            amount,
-            transaction_hash:  'null',
-            wallet_address,
-          });
+          .insert({ 
+            amount: amount,
+            wallet_address: wallet_address,
+            transaction_hash: transactionHash,
+            user_id: userId
+          })
 
-        if (listError) {
-          return NextResponse.json({ error: 'Failed to insert into withdrawal_list' }, { status: 500 });
+          if (listInsertError) {
+            throw new Error(`Transaction failed: ${listInsertError.message}`);
+          }
+            
+
+
+        } catch (withdrawalError) {
+          return NextResponse.json(
+            {
+              error: 'Withdrawal processing failed',
+              details: (withdrawalError as Error).message,
+            },
+            { status: 500 }
+          );
         }
+        break;
 
-      } catch (withdrawalError) {
-        return NextResponse.json(
-          {
-            error: 'Failed to process withdrawal through Bitget',
-            details: (withdrawalError as Error).message,
-          },
-          { status: 500 }
-        );
-      }
+      default:
+        return NextResponse.json({ error: 'Unhandled status' }, { status: 400 });
     }
 
     return NextResponse.json({ message: 'Withdrawal status updated successfully' });
