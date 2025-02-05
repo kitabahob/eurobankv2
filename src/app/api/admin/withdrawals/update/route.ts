@@ -19,10 +19,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid input parameters' }, { status: 400 });
     }
 
-    // Validate reason for specific statuses
-    if (['delayed', 'canceled'].includes(status) && !reason) {
-      return NextResponse.json({ error: 'Reason required for delayed or canceled status' }, { status: 400 });
-    }
 
 
   
@@ -66,12 +62,13 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ message: 'Withdrawal status updated successfully' });
+    
     }else if (status === 'canceled'){
       const { error } = await supabase
         .from('withdrawal_queue')
         .update({ 
           status: 'canceled',
-          reason: reason
+          reason: reason || null
         })
         .eq('id', id);
 
