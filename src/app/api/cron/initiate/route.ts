@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Call the process-withdrawals API route
-    const response = await fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/cron/process-withdrawals`, {
+    const response = await fetch(`/api/cron/process-withdrawals`, {
       method: 'GET',
     });
 
