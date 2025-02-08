@@ -67,10 +67,7 @@ export async function GET() {
   
           const result = await response.json();
   
-          if (!result.transactionHash) {
-            throw new Error('Transaction hash not found in Bitget API response');
-          }
-  
+          
   
           // Update withdrawal status in Supabase
           const { error: updateError } = await supabase
