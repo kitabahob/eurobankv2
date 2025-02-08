@@ -143,7 +143,7 @@
     "selectDepositLevel": "اختر مستوى الإيداع",
     "chooseLevel": "اختر مستوى",
     "dailyProfit": "الأرباح اليومية",
-    "walletAddress": "عنوان المحفظة",
+    "walletAddress":"أدخل عنوان المحفظة التي تم إرسال المال منها." ,
     "pleaseSelectLevel": "يرجى اختيار مستوى الإيداع.",
     "pleaseEnterWalletAddress": "يرجى إدخال عنوان المحفظة.",
     "depositFailed": "فشل الإيداع. يرجى المحاولة مرة أخرى.",

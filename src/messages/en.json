@@ -144,7 +144,7 @@
         "selectDepositLevel": "Select Deposit Level",
         "chooseLevel": "Choose a level",
         "dailyProfit": "Daily Profit",
-        "walletAddress": "Wallet Address",
+        "walletAddress": "Enter Wallet Address From Which Money Is Sent",
         "pleaseSelectLevel": "Please select a deposit level.",
         "pleaseEnterWalletAddress": "Please enter a wallet address.",
         "depositFailed": "Deposit failed. Please try again.",
@@ -202,7 +202,7 @@
               "status": "Status",
               "expiresAt": "Expires At",
               "transaction": "Transaction",
-              "verifyTransaction": "Verify Transaction"
+              "verifyTransaction": "Confirm Transaction"
             
           },
           "layout":{
