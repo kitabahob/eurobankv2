@@ -77,7 +77,7 @@ export default function Navbar() {
         <button
           type="button"
           className="mobile-menu-button"
-          onClick={navigateToLogin}
+          onClick={(e)=>{setIsMenuOpen(!isMenuOpen)}}
           aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
