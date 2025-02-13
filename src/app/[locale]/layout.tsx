@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { AuthProvider } from "@/context/AuthContext";
 
 
 const geistSans = localFont({
@@ -35,7 +36,9 @@ type RootLayoutProps = {
 }
 
 export default async function RootLayout(props: RootLayoutProps) {
+
   const { locale } = await props.params;
+
   
   
   // Ensure that the incoming `locale` is valid
@@ -48,7 +51,7 @@ export default async function RootLayout(props: RootLayoutProps) {
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-     
+    <AuthProvider>
       <body  className={`
         min-h-screen 
         overflow-x-hidden
@@ -63,6 +66,7 @@ export default async function RootLayout(props: RootLayoutProps) {
           {props.children}
         </NextIntlClientProvider>
       </body>
+      </AuthProvider>
     </html>
   );
 }

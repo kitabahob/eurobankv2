@@ -5,8 +5,9 @@ import DashboardPage from '@/lib/components/Admin/DashboardPage';
 import WithdrawalsPage from '@/lib/components/Admin/WithdrawalPage';
 import AnnouncementsPage from '@/lib/components/Admin/AnnouncementPage';
 import { createClient } from '@/utils/supabase/client';
-import { auth } from '@/firebase/config';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from '@/i18n/routing';
+import LoginPage from '../page';
 
 interface NavItem {
   id: 'dashboard' | 'withdrawals' | 'announcements';
@@ -19,6 +20,7 @@ const AdminDashboard: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
 
 
@@ -27,8 +29,8 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const currentUser = auth.currentUser;
-        if (!currentUser?.email) {
+        const currentUser = user;
+        if (!currentUser) {
           console.error('No user logged in.');
           setIsAdmin(false);
           return;
@@ -57,7 +59,7 @@ const AdminDashboard: React.FC = () => {
     };
 
     checkAdminStatus();
-  }, []);
+  }, [user]);
 
   const navItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard' },
@@ -110,10 +112,9 @@ const AdminDashboard: React.FC = () => {
   }
 
   if (isAdmin === false) {
-    return <div className="flex flex-col items-center justify-center m-auto h-screen text-red-500">
-      <h1>Access Denied. Admins only.</h1>
-      <button onClick={() => router.push('/admin')} className="bg-blue-500 text-white px-4 py-2 mt-4 rounded-lg">Login</button>
-    </div>;
+    return <>
+    <LoginPage/>
+    </>
   }
 
   return (

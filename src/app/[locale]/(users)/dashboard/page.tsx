@@ -1,8 +1,10 @@
 'use client';
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import { useRouter,usePathname } from '@/i18n/routing';
+import LoginPage from '../../auth/login/page';
 import { 
   Wallet, 
   ArrowDownToLine, 
@@ -16,7 +18,6 @@ import {
   Bell,
   MessagesSquare
 } from 'lucide-react';
-import { useCurrentUser } from '@/lib/auth/useCurrentUser';
 import { useTranslations } from 'next-intl';
 
 import dynamic from 'next/dynamic';
@@ -33,23 +34,39 @@ const EurobankDashboard = () => {
     balance: 0,
   });
 
+  const { user } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const user = useCurrentUser();
   const router = useRouter();
   const pathname= usePathname();
   const supabase = createClient()
+  
   // Fetch user data from API
   useEffect(() => {
+
     const fetchUserData = async () => {
       if (!user) return;
   
       setLoading(true);
       try {
+        const { data:id,error:idError} = await supabase
+        .from('users')
+        .select ('id')
+        .eq('firebase_uid',user.uid)
+        .single()
+
+        if (idError){
+          throw idError;
+        }
+
+        const supabaseId  = id.id;
+
+
         const { data, error } = await supabase
           .from('users')
           .select('daily_profit, ref_profit, total_profit, email, profit_balance')
-          .eq('id', user.supabaseId)
+          .eq('id', supabaseId)
           .single();
   
         if (error) throw error;
@@ -127,21 +144,14 @@ const EurobankDashboard = () => {
 
   
 
-  if (!user || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+    if (!user) {
+        return <LoginPage />;
+    }
+  
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        {error}
-      </div>
-    );
-  }
+ 
+
+ 
 
   return (
     <div className="min-h-screen bg-background text-foreground">
