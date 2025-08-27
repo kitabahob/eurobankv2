@@ -1,6 +1,6 @@
 {
-    "crons": [{
-      "path": "/api/cron/initiate",
-      "schedule": "0 0 * * *"
-    }]
-  }
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next"
+}
