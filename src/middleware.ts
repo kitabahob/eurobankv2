@@ -1,9 +1,14 @@
-import createMiddleware from 'next-intl/middleware';
-import {routing} from './i18n/routing';
- 
-export default createMiddleware(routing);
- 
+// src/middleware.ts
+
+// حالياً مش محتاجين أي Middleware
+// وقفنا التوجيه للغات (ar, en)
+
+export default function middleware() {
+  // ما يعمل أي شيء
+  return;
+}
+
+// ما في أي matcher = ما في أي توجيه
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ['/', '/(ar|en)/:path*']
+  matcher: []
 };
